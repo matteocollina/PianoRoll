@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package pianoroll;
+import pianoroll.model.PianoRollContent;
 
 /**
  *
@@ -11,11 +12,18 @@ package pianoroll;
  */
 public class PianoRoll {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        initComponents();
     }
-    
+
+    private static void initComponents() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                PianoRollContent pianoRollContent = new PianoRollContent();
+            }
+        });
+    }
+
 }
+
