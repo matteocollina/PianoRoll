@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pianoroll.model;
+package pianoroll.controller;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -20,31 +20,31 @@ public class PianoRollContent extends JFrame{
     private final int HEIGHT = 600;
     private final int MIN_WIDTH = 800;
     private final int MIN_HEIGHT = 400;
-    private TopBar topBar = new TopBar();
+    private final TopBar topBar = new TopBar();
     private NoteBar noteBar = new NoteBar();
     private Body body = new Body();
     
     public PianoRollContent(){
         super(TITLE);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setResizable(true);
+        setResizable(false);
         setLayout(new BorderLayout());
+        setSize(WIDTH, HEIGHT);
+        setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
         
         add(topBar,BorderLayout.NORTH);
         add(noteBar,BorderLayout.WEST);
         add(body,BorderLayout.CENTER);
         
-        setSize(WIDTH, HEIGHT);
-        setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
         setVisible(true);
+        setDefaultGraphic();   
     }
-    public TopBar getTopBar(){
-        return this.topBar;
-    }
-    public NoteBar getNoteBar(){
-        return this.noteBar;
-    }
-    public Body getBody(){
-        return this.body;
+    /**
+     * - Set notes
+     * - Set piano roll's lines
+     */
+    private void setDefaultGraphic(){
+        noteBar.setNoteButtons();
+        body.setLines();
     }
 }

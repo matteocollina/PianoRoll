@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package pianoroll;
-import pianoroll.model.PianoRollContent;
+import pianoroll.controller.PianoRollContent;
 
 /**
  *
