@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import model.NoteButton;
+import model.utils.ConfigManager;
 
 /**
  *
@@ -39,7 +40,7 @@ public class NoteBar extends JPanel implements ActionListener{
     }
     public NoteBar() {
         super();
-        setBackground(Color.GREEN);
+        setBackground(Color.BLACK);
         setPreferredSize(new Dimension(WIDTH, 0));
         setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
         initSynth();
@@ -47,11 +48,10 @@ public class NoteBar extends JPanel implements ActionListener{
     
     public void setNoteButtons(){
         this.removeAll();
-        int countall = 10; //TODO: Create var
-        
-        for (int i = 0; i < countall; i++) {
+        int countNoteButtons = ConfigManager.getInstance().getConfigCountNoteButtons(); 
+        for (int i = 0; i < countNoteButtons; i++) {
             NoteButton noteBtn = new NoteButton(i);
-            noteBtn.setPreferredSize(new Dimension(WIDTH, this.getHeight()/countall));
+            noteBtn.setPreferredSize(new Dimension(WIDTH, this.getHeight()/countNoteButtons));
             noteBtn.addActionListener(this);
             this.add(noteBtn);
         }

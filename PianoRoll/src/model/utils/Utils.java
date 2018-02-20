@@ -17,6 +17,9 @@ import javax.swing.JButton;
  */
 public class Utils {
     private static final String ICO_SETTINGS = "ic_settings_2x.png";
+    private static final String ICO_STOP = "ic_stop_2x.png";
+    private static final String ICO_PAUSE = "ic_pause_2x.png";
+    private static final String ICO_PLAY = "ic_play_2x.png";
     
     /**
      * 
@@ -34,11 +37,24 @@ public class Utils {
     private  ImageIcon getIconWithName(String name){
         return new ImageIcon(getImageWithName(name));
     }
-    private  ImageIcon getIconWithNameAndSize(String name,int width, int height){
-        return new ImageIcon(getImageWithName(name).getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH ));
+    private  ImageIcon getIconWithNameAndSize(String name,int width, int height, float resize){
+        return new ImageIcon(getImageWithName(name).getScaledInstance((int) (width * resize), (int) (height * resize),  java.awt.Image.SCALE_SMOOTH ));
     }
-    public static ImageIcon getSettingsIcon(int width, int height){
-        return new Utils().getIconWithNameAndSize(ICO_SETTINGS,width,height);
+    
+    /* ICONS */
+    public static ImageIcon getSettingsIcon(int width, int height,float resize){
+        return new Utils().getIconWithNameAndSize(ICO_SETTINGS,width,height,resize);
     }
+    public static ImageIcon getStopIcon(int width, int height,float resize){
+        return new Utils().getIconWithNameAndSize(ICO_STOP,width,height,resize);
+    }
+    public static ImageIcon getPauseIcon(int width, int height,float resize){
+        return new Utils().getIconWithNameAndSize(ICO_PAUSE,width,height,resize);
+    }
+    public static ImageIcon getPlayIcon(int width, int height,float resize){
+        return new Utils().getIconWithNameAndSize(ICO_PLAY,width,height,resize);
+    }
+    
+    
     
 }

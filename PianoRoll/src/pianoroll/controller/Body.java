@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import model.utils.ConfigManager;
 
 /**
  *
@@ -25,14 +26,14 @@ public class Body extends JPanel{
     
     public void setLines(){
         this.removeAll();
-        int countall = 10; //TODO: Create var
+        int countAudioLines = ConfigManager.getInstance().getConfigCountNoteButtons();
         
-        for (int i = 0; i < countall; i++) {
+        for (int i = 0; i < countAudioLines; i++) {
             JPanel panel = new JPanel();
-            panel.setPreferredSize(new Dimension(this.getWidth(), (int)((this.getHeight()/countall)*1)));
-            panel.setBackground(i%2==0 ? Color.BLUE : Color.PINK);
+            panel.setPreferredSize(new Dimension(this.getWidth(),this.getHeight()/countAudioLines));
+            panel.setBackground(i%2==0 ? Color.LIGHT_GRAY : Color.DARK_GRAY);
             
-            for (int j = 0; j < countall; j++) {
+            for (int j = 0; j < countAudioLines; j++) {
                 JCheckBox jCheckBox = new JCheckBox();
                 panel.add(jCheckBox);
             }
