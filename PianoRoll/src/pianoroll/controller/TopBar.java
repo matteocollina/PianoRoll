@@ -32,6 +32,7 @@ import javax.swing.SwingUtilities;
 import model.IntTextField;
 import model.SettingButton;
 import model.utils.ConfigManager;
+import model.utils.KeyLocate;
 import model.utils.Utils;
 
 /**
@@ -68,17 +69,17 @@ public class TopBar extends JPanel{
             this.add(listButtons[i]);
         }  
         
-        IntTextField bpmTextField = new IntTextField("120",4);
+        IntTextField bpmTextField = new IntTextField(ConfigManager.getInstance().getConfigBPM(),4);
         this.add(bpmTextField);
         
         JComboBox comboListTimbri = new JComboBox(listTimbri);
         this.add(comboListTimbri);
         
-        JButton btnSave = new JButton("Salva");
+        JButton btnSave = new JButton(Utils.getAppString(KeyLocate.SALVA));
         btnSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(topFrame, "Configuration saved");
+                JOptionPane.showMessageDialog(topFrame, KeyLocate.CONFIGURAZIONE_SALVATA);
             }
         });
         this.add(btnSave);

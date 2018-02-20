@@ -28,6 +28,8 @@ public class ConfigManager {
     private String DEFAULT_CONFIG_MIN_FREQ = "27.5";
     private String KEY_CONFIG_MAX_FREQ = "key_max_freq";
     private String DEFAULT_CONFIG_MAX_FREQ = "4186.01";
+    private String KEY_CONFIG_BPM = "key_bpm";
+    private String DEFAULT_CONFIG_BPM = "100";
  
     public ConfigManager(){
         this._properties = new Properties();
@@ -86,5 +88,9 @@ public class ConfigManager {
     public String getConfigMaxFreq(){
         String value = this.read(KEY_CONFIG_MAX_FREQ);
         return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_MAX_FREQ : value;
+    }
+    public String getConfigBPM(){
+        String value = this.read(KEY_CONFIG_BPM);
+        return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_BPM : value;
     }
 }

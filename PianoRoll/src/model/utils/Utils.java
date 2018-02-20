@@ -7,6 +7,9 @@ package model.utils;
 
 import java.awt.Image;
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,6 +23,8 @@ public class Utils {
     private static final String ICO_STOP = "ic_stop_2x.png";
     private static final String ICO_PAUSE = "ic_pause_2x.png";
     private static final String ICO_PLAY = "ic_play_2x.png";
+    private static Hashtable resourceBundles = new Hashtable();
+    private static final String FILENAME_STRINGS = "resources.lang.app_string";
     
     /**
      * 
@@ -41,20 +46,59 @@ public class Utils {
         return new ImageIcon(getImageWithName(name).getScaledInstance((int) (width * resize), (int) (height * resize),  java.awt.Image.SCALE_SMOOTH ));
     }
     
-    /* ICONS */
-    public static ImageIcon getSettingsIcon(int width, int height,float resize){
-        return new Utils().getIconWithNameAndSize(ICO_SETTINGS,width,height,resize);
+    //<editor-fold defaultstate="collapsed" desc=" Icons ">
+    public static ImageIcon getSettingsIcon(int width, int height, float resize) {
+        return new Utils().getIconWithNameAndSize(ICO_SETTINGS, width, height, resize);
     }
-    public static ImageIcon getStopIcon(int width, int height,float resize){
-        return new Utils().getIconWithNameAndSize(ICO_STOP,width,height,resize);
+
+    public static ImageIcon getStopIcon(int width, int height, float resize) {
+        return new Utils().getIconWithNameAndSize(ICO_STOP, width, height, resize);
     }
-    public static ImageIcon getPauseIcon(int width, int height,float resize){
-        return new Utils().getIconWithNameAndSize(ICO_PAUSE,width,height,resize);
+
+    public static ImageIcon getPauseIcon(int width, int height, float resize) {
+        return new Utils().getIconWithNameAndSize(ICO_PAUSE, width, height, resize);
     }
-    public static ImageIcon getPlayIcon(int width, int height,float resize){
-        return new Utils().getIconWithNameAndSize(ICO_PLAY,width,height,resize);
+
+    public static ImageIcon getPlayIcon(int width, int height, float resize) {
+        return new Utils().getIconWithNameAndSize(ICO_PLAY, width, height, resize);
     }
+    //</editor-fold>
     
     
+    //<editor-fold defaultstate="collapsed" desc=" Translate ">
+    public static String getAppString(String key) {
+        return Utils.getResourceString(key, FILENAME_STRINGS);
+    }
+    public static String getResourceString(String key, String baseName) {
+        if (key == null || key.equals("")) {
+            return key;
+        }
+        Locale locale = Locale.getDefault();
+        System.out.println(locale.toString());
+        ResourceBundle resource
+                = (ResourceBundle) resourceBundles.get(baseName + "_" + locale.toString());
+        if (resource == null) {
+            try {
+                resource = ResourceBundle.getBundle(baseName, locale);
+                if (resource != null) {
+                    resourceBundles.put(baseName + "_" + locale.toString(), resource);
+                }
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+        if (resource != null) {
+            try {
+                String value = resource.getString(key);
+                if (value != null) {
+                    return value;
+                }
+            } catch (java.util.MissingResourceException mre) {
+                System.out.println(mre.toString());
+            }
+        }
+        return key;
+    }
+    //</editor-fold>
     
 }
