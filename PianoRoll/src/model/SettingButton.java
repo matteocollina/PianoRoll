@@ -5,7 +5,6 @@
  */
 package model;
 
-import java.awt.Color;
 import javax.swing.Icon;
 import javax.swing.JButton;
 

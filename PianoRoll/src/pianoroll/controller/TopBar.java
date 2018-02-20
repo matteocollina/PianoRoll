@@ -55,6 +55,10 @@ public class TopBar extends JPanel{
     private int HEIGHT_GROUP = 50;
     private int MAX_CHAR_FREQ = 7;
     private int WIDTH_FREQ = 80;
+    IntTextField minFreqTextField;
+    IntTextField maxFreqTextField;
+    IntTextField bpmTextField;
+    IntTextField countNoteButtonsTextField;
     
     
     public TopBar() {
@@ -63,11 +67,11 @@ public class TopBar extends JPanel{
         setPreferredSize(new Dimension(0, HEIGHT));
         this.setLayout(new FlowLayout(FlowLayout.TRAILING));
                
-        IntTextField minFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMinFreq(),MAX_CHAR_FREQ);        
+        minFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMinFreq(),MAX_CHAR_FREQ);        
         SettingGroupPanel minFreqGroupPanel = new SettingGroupPanel(WIDTH_FREQ, HEIGHT_GROUP, minFreqTextField, Utils.getAppString(KeyLocate.FREQ_MIN));
         this.add(minFreqGroupPanel);
         
-        IntTextField maxFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMaxFreq(),MAX_CHAR_FREQ);
+        maxFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMaxFreq(),MAX_CHAR_FREQ);
         SettingGroupPanel maxFreqGroupPanel = new SettingGroupPanel(WIDTH_FREQ, HEIGHT_GROUP, maxFreqTextField, Utils.getAppString(KeyLocate.FREQ_MAX));
         this.add(maxFreqGroupPanel);
         
@@ -80,14 +84,14 @@ public class TopBar extends JPanel{
             this.add(listButtons[i]);
         }  
         
-        IntTextField bpmTextField = new IntTextField(ConfigManager.getInstance().getConfigBPM(),4);
+        bpmTextField = new IntTextField(ConfigManager.getInstance().getConfigBPM(),4);
         SettingGroupPanel bpmGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, bpmTextField, Utils.getAppString(KeyLocate.BPM));
         this.add(bpmGroupPanel);
         
         JComboBox comboListTimbri = new JComboBox(listTimbri);
         this.add(comboListTimbri);
         
-        IntTextField countNoteButtonsTextField = new IntTextField(Integer.toString(ConfigManager.getInstance().getConfigCountNoteButtons()),MAX_CHAR);                
+        countNoteButtonsTextField = new IntTextField(Integer.toString(ConfigManager.getInstance().getConfigCountNoteButtons()),MAX_CHAR);                
         SettingGroupPanel settingGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, countNoteButtonsTextField, Utils.getAppString(KeyLocate.TASTI));
         this.add(settingGroupPanel);
         
@@ -95,10 +99,18 @@ public class TopBar extends JPanel{
         btnSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                saveConfig();
                 JOptionPane.showMessageDialog(topFrame, Utils.getAppString(KeyLocate.CONFIGURAZIONE_SALVATA));
             }
         });
         this.add(btnSave);
+    }
+    
+    private void saveConfig(){
+        ConfigManager.getInstance().setConfigMinFreq(minFreqTextField.getText());
+        ConfigManager.getInstance().setConfigMaxFreq(maxFreqTextField.getText());
+        ConfigManager.getInstance().setConfigBPM(bpmTextField.getText());
+        ConfigManager.getInstance().setConfigCountNoteButtons(countNoteButtonsTextField.getText());
     }
         
 }

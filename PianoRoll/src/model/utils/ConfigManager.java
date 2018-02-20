@@ -49,11 +49,6 @@ public class ConfigManager {
    public static ConfigManager getInstance( ) {
       return singleton;
    }
-
-   /* Other methods protected by singleton-ness */
-   protected static void demoMethod( ) {
-      System.out.println("demoMethod for singleton");
-   }
  
     /**
      * read property
@@ -76,7 +71,7 @@ public class ConfigManager {
         } catch (IOException e) { System.err.println(e.toString()); }
     }
     
-    
+    /* GET */
     public int getConfigCountNoteButtons(){
         String value = this.read(KEY_CONFIG_COUNT_NOTE_BTNS);
         return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_COUNT_NOTE_BTNS : Integer.parseInt(value);
@@ -95,5 +90,19 @@ public class ConfigManager {
     public String getConfigBPM(){
         String value = this.read(KEY_CONFIG_BPM);
         return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_BPM : value;
+    }
+    
+    /* SET */
+    public  void setConfigCountNoteButtons(String value){
+        this.write(KEY_CONFIG_COUNT_NOTE_BTNS,value);
+    }
+    public void setConfigMinFreq(String value){
+        this.write(KEY_CONFIG_MIN_FREQ,value);
+    }
+    public void setConfigMaxFreq(String value){
+        this.write(KEY_CONFIG_MAX_FREQ,value);
+    }
+    public void setConfigBPM(String value){
+        this.write(KEY_CONFIG_BPM,value);
     }
 }
