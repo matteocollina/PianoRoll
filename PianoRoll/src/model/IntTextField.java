@@ -15,13 +15,16 @@ import javax.swing.JTextField;
  * @author MacBook
  */
 public class IntTextField extends JTextField implements KeyListener{
-
-    public IntTextField(String text) {
-        super(text);
+    private int limit;
+    
+    public IntTextField(String text,int limit) {
+        super(text,4);
+        this.limit = limit;
         addKeyListener(this);
     }
-    public IntTextField(String text, int columns) {
+    public IntTextField(String text, int columns,int limit) {
         super(text,columns);
+        this.limit = limit;
         addKeyListener(this);
     }
     
@@ -32,6 +35,8 @@ public class IntTextField extends JTextField implements KeyListener{
     
     @Override
     public void keyTyped(KeyEvent e) {
+        if (this.getText().length() >= this.limit ) // limit to 3 characters
+                e.consume();
     }
 
     @Override

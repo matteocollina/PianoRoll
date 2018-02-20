@@ -74,7 +74,6 @@ public class Utils {
             return key;
         }
         Locale locale = Locale.getDefault();
-        System.out.println(locale.toString());
         ResourceBundle resource
                 = (ResourceBundle) resourceBundles.get(baseName + "_" + locale.toString());
         if (resource == null) {

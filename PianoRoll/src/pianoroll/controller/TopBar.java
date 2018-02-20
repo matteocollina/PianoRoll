@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
@@ -31,6 +32,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import model.IntTextField;
 import model.SettingButton;
+import model.SettingGroupPanel;
 import model.utils.ConfigManager;
 import model.utils.KeyLocate;
 import model.utils.Utils;
@@ -41,14 +43,18 @@ import model.utils.Utils;
  */
 public class TopBar extends JPanel{
 
-    private final int HEIGHT = 30;
+    private final int HEIGHT = 80; //30
     private final SettingButton btnStop = new SettingButton(Utils.getStopIcon(HEIGHT,HEIGHT, (float) 0.5));
     private final SettingButton btnPause = new SettingButton(Utils.getPauseIcon(HEIGHT,HEIGHT, (float) 0.5));
     private final SettingButton btnPlay = new SettingButton(Utils.getPlayIcon(HEIGHT,HEIGHT, (float) 0.5));
     private SettingButton[] listButtons = {btnStop,btnPause,btnPlay};
     private String[] listTimbri = {"Sine"};
     private JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-
+    private int MAX_CHAR = 4;
+    private int WIDTH_GROUP = 50;
+    private int HEIGHT_GROUP = 50;
+    private int MAX_CHAR_FREQ = 7;
+    private int WIDTH_FREQ = 80;
     
     
     public TopBar() {
@@ -56,11 +62,16 @@ public class TopBar extends JPanel{
         setBackground(Color.BLUE);
         setPreferredSize(new Dimension(0, HEIGHT));
         this.setLayout(new FlowLayout(FlowLayout.TRAILING));
+               
+        IntTextField minFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMinFreq(),MAX_CHAR_FREQ);        
+        SettingGroupPanel minFreqGroupPanel = new SettingGroupPanel(WIDTH_FREQ, HEIGHT_GROUP, minFreqTextField, Utils.getAppString(KeyLocate.FREQ_MIN));
+        this.add(minFreqGroupPanel);
         
-        IntTextField minFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMinFreq(),4);        
-        IntTextField maxFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMaxFreq(),4);
-        this.add(minFreqTextField);
-        this.add(maxFreqTextField);
+        IntTextField maxFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMaxFreq(),MAX_CHAR_FREQ);
+        SettingGroupPanel maxFreqGroupPanel = new SettingGroupPanel(WIDTH_FREQ, HEIGHT_GROUP, maxFreqTextField, Utils.getAppString(KeyLocate.FREQ_MAX));
+        this.add(maxFreqGroupPanel);
+        
+        
         
         JLabel timeLabel = new JLabel("00:00");
         this.add(timeLabel);
@@ -70,16 +81,21 @@ public class TopBar extends JPanel{
         }  
         
         IntTextField bpmTextField = new IntTextField(ConfigManager.getInstance().getConfigBPM(),4);
-        this.add(bpmTextField);
+        SettingGroupPanel bpmGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, bpmTextField, Utils.getAppString(KeyLocate.BPM));
+        this.add(bpmGroupPanel);
         
         JComboBox comboListTimbri = new JComboBox(listTimbri);
         this.add(comboListTimbri);
+        
+        IntTextField countNoteButtonsTextField = new IntTextField(Integer.toString(ConfigManager.getInstance().getConfigCountNoteButtons()),MAX_CHAR);                
+        SettingGroupPanel settingGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, countNoteButtonsTextField, Utils.getAppString(KeyLocate.TASTI));
+        this.add(settingGroupPanel);
         
         JButton btnSave = new JButton(Utils.getAppString(KeyLocate.SALVA));
         btnSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(topFrame, KeyLocate.CONFIGURAZIONE_SALVATA);
+                JOptionPane.showMessageDialog(topFrame, Utils.getAppString(KeyLocate.CONFIGURAZIONE_SALVATA));
             }
         });
         this.add(btnSave);

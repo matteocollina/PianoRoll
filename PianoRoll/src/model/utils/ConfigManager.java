@@ -89,6 +89,9 @@ public class ConfigManager {
         String value = this.read(KEY_CONFIG_MAX_FREQ);
         return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_MAX_FREQ : value;
     }
+    public float getConfigStepFreq(){
+        return Float.valueOf(getConfigMaxFreq()) - Float.valueOf(getConfigMinFreq());
+    }
     public String getConfigBPM(){
         String value = this.read(KEY_CONFIG_BPM);
         return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_BPM : value;
