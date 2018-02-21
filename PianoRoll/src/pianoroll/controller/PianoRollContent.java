@@ -14,7 +14,7 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
  *
  * @author MacBook
  */
-public class PianoRollContent extends JFrame{
+public class PianoRollContent extends JFrame{    
     private static final String TITLE = "Piano Roll Microtonale";
     private final int WIDTH = 1000;
     private final int HEIGHT = 600;
@@ -37,14 +37,21 @@ public class PianoRollContent extends JFrame{
         add(body,BorderLayout.CENTER);
         
         setVisible(true);
-        setDefaultGraphic();   
+        reloadGraphic();
     }
+    
+    
     /**
      * - Set notes
      * - Set piano roll's lines
      */
-    private void setDefaultGraphic(){
+    public void reloadGraphic(){
         noteBar.setNoteButtons();
         body.setLines();
+        revalidate();
+        repaint();
+    }
+    protected void sayhi(){
+        System.out.println("Hiiiiii");
     }
 }

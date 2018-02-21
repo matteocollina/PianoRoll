@@ -6,6 +6,7 @@
 package pianoroll.controller;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -51,6 +52,7 @@ public class TopBar extends JPanel{
     private String[] listTimbri = {"Sine"};
     private JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
     private int MAX_CHAR = 4;
+    private int MAX_CHAR_BTN_NOTES = 2;
     private int WIDTH_GROUP = 50;
     private int HEIGHT_GROUP = 50;
     private int MAX_CHAR_FREQ = 7;
@@ -59,6 +61,7 @@ public class TopBar extends JPanel{
     IntTextField maxFreqTextField;
     IntTextField bpmTextField;
     IntTextField countNoteButtonsTextField;
+    PianoRollContent pianoRollContent;
     
     
     public TopBar() {
@@ -91,7 +94,7 @@ public class TopBar extends JPanel{
         JComboBox comboListTimbri = new JComboBox(listTimbri);
         this.add(comboListTimbri);
         
-        countNoteButtonsTextField = new IntTextField(Integer.toString(ConfigManager.getInstance().getConfigCountNoteButtons()),MAX_CHAR);                
+        countNoteButtonsTextField = new IntTextField(Integer.toString(ConfigManager.getInstance().getConfigCountNoteButtons()),MAX_CHAR_BTN_NOTES);                
         SettingGroupPanel settingGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, countNoteButtonsTextField, Utils.getAppString(KeyLocate.TASTI));
         this.add(settingGroupPanel);
         
@@ -100,10 +103,9 @@ public class TopBar extends JPanel{
             @Override
             public void actionPerformed(ActionEvent e) {
                 saveConfig();
-                JOptionPane.showMessageDialog(topFrame, Utils.getAppString(KeyLocate.CONFIGURAZIONE_SALVATA));
             }
         });
-        this.add(btnSave);
+        this.add(btnSave);        
     }
     
     private void saveConfig(){
@@ -111,6 +113,14 @@ public class TopBar extends JPanel{
         ConfigManager.getInstance().setConfigMaxFreq(maxFreqTextField.getText());
         ConfigManager.getInstance().setConfigBPM(bpmTextField.getText());
         ConfigManager.getInstance().setConfigCountNoteButtons(countNoteButtonsTextField.getText());
+        JOptionPane.showMessageDialog(topFrame, Utils.getAppString(KeyLocate.CONFIGURAZIONE_SALVATA));
+
+        getPianoRollContent().sayhi();
+        getPianoRollContent().reloadGraphic();
+    }
+    
+    private PianoRollContent getPianoRollContent(){
+        return (PianoRollContent) javax.swing.SwingUtilities.getWindowAncestor(this);
     }
         
 }
