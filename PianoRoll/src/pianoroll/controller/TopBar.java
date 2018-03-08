@@ -6,34 +6,27 @@
 package pianoroll.controller;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.LayoutManager;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.util.ArrayList;
-import javax.imageio.ImageIO;
-import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import model.IntTextField;
 import model.SettingButton;
 import model.SettingGroupPanel;
+import model.singleton.ScoreSingleton;
 import model.utils.ConfigManager;
 import model.utils.KeyLocate;
 import model.utils.Utils;
@@ -53,6 +46,7 @@ public class TopBar extends JPanel{
     private JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
     private int MAX_CHAR = 4;
     private int MAX_CHAR_BTN_NOTES = 2;
+    private int MAX_LIMIT_MISURE = 50;
     private int WIDTH_GROUP = 50;
     private int HEIGHT_GROUP = 50;
     private int MAX_CHAR_FREQ = 7;
@@ -61,8 +55,9 @@ public class TopBar extends JPanel{
     IntTextField maxFreqTextField;
     IntTextField bpmTextField;
     IntTextField countNoteButtonsTextField;
+    IntTextField countMisuresTextField;
     PianoRollContent pianoRollContent;
-    
+    Timer timer = new Timer();
     
     public TopBar() {
         super();
@@ -80,12 +75,33 @@ public class TopBar extends JPanel{
         
         
         
-        JLabel timeLabel = new JLabel("00:00");
+        JLabel timeLabel = new JLabel("0s");
         this.add(timeLabel);
         
         for (int i = 0; i < listButtons.length; i++) {
             this.add(listButtons[i]);
         }  
+        btnPlay.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { 
+                ScoreSingleton.getInstance().play();
+            }
+        });
+        btnStop.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ScoreSingleton.getInstance().stop();
+            }
+        });
+        btnPause.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ScoreSingleton.getInstance().pause();
+            }
+        });
+        
+            
+        
         
         bpmTextField = new IntTextField(ConfigManager.getInstance().getConfigBPM(),4);
         SettingGroupPanel bpmGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, bpmTextField, Utils.getAppString(KeyLocate.BPM));
@@ -97,6 +113,10 @@ public class TopBar extends JPanel{
         countNoteButtonsTextField = new IntTextField(Integer.toString(ConfigManager.getInstance().getConfigCountNoteButtons()),MAX_CHAR_BTN_NOTES);                
         SettingGroupPanel settingGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, countNoteButtonsTextField, Utils.getAppString(KeyLocate.TASTI));
         this.add(settingGroupPanel);
+        
+        countMisuresTextField = new IntTextField(Integer.toString(ConfigManager.getInstance().getConfigCountMisureButtons()),MAX_LIMIT_MISURE);                
+        SettingGroupPanel misureGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, countMisuresTextField, Utils.getAppString(KeyLocate.MISURE));
+        this.add(misureGroupPanel);
         
         JButton btnSave = new JButton(Utils.getAppString(KeyLocate.SALVA));
         btnSave.addActionListener(new ActionListener() {
@@ -113,9 +133,8 @@ public class TopBar extends JPanel{
         ConfigManager.getInstance().setConfigMaxFreq(maxFreqTextField.getText());
         ConfigManager.getInstance().setConfigBPM(bpmTextField.getText());
         ConfigManager.getInstance().setConfigCountNoteButtons(countNoteButtonsTextField.getText());
+        ConfigManager.getInstance().setConfigCountMisure(countMisuresTextField.getText());
         JOptionPane.showMessageDialog(topFrame, Utils.getAppString(KeyLocate.CONFIGURAZIONE_SALVATA));
-
-        getPianoRollContent().sayhi();
         getPianoRollContent().reloadGraphic();
     }
     

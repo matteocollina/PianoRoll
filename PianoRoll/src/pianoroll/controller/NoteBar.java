@@ -48,13 +48,11 @@ public class NoteBar extends JPanel implements ActionListener{
     
     public void setNoteButtons(){
         this.removeAll();
-        int countNoteButtons = ConfigManager.getInstance().getConfigCountNoteButtons();
-        float step = ConfigManager.getInstance().getConfigStepFreq()/countNoteButtons;
-        float minFreq = Float.valueOf(ConfigManager.getInstance().getConfigMinFreq());
-        for (int i = 0; i < countNoteButtons; i++) {
-            NoteButton noteBtn = new NoteButton(minFreq + (i*step));
-            noteBtn.setPreferredSize(new Dimension(WIDTH, this.getHeight()/countNoteButtons));
-            noteBtn.addActionListener(this);
+        float[] listFrequences = ConfigManager.getListFrequences();
+        for (int i = 0; i < listFrequences.length; i++) {
+            NoteButton noteBtn = new NoteButton(listFrequences[i]);
+            noteBtn.setPreferredSize(new Dimension(WIDTH, this.getHeight()/listFrequences.length));
+            //noteBtn.addActionListener(this);
             this.add(noteBtn);
         }
     }

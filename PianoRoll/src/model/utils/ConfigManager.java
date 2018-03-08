@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import jm.JMC;
 
 
 public class ConfigManager {
@@ -23,7 +24,11 @@ public class ConfigManager {
     private final String _filename = "pianoroll.properties";
     
     private String KEY_CONFIG_COUNT_NOTE_BTNS = "key_count_note_btns";
+    private String KEY_CONFIG_COUNT_MISURE_BTNS = "key_count_misure_btns";
     private int DEFAULT_CONFIG_COUNT_NOTE_BTNS = 10;
+    private int DEFAULT_CONFIG_COUNT_MISURE_BTNS = 2;
+    private int DEFAULT_CONFIG_MIN_DURATE = 4;
+    public static final double DEFAULT_CONFIG_RYTHM_MIN_DURATE = JMC.SEMI_QUAVER;
     private String KEY_CONFIG_MIN_FREQ = "key_min_freq";
     private String DEFAULT_CONFIG_MIN_FREQ = "27.5";
     private String KEY_CONFIG_MAX_FREQ = "key_max_freq";
@@ -72,6 +77,13 @@ public class ConfigManager {
     }
     
     /* GET */
+    public int getConfigMinDurate(){
+        return DEFAULT_CONFIG_MIN_DURATE;
+    }
+    public int getConfigCountMisureButtons(){
+        String value = this.read(KEY_CONFIG_COUNT_MISURE_BTNS);
+        return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_COUNT_MISURE_BTNS : Integer.parseInt(value);
+    }
     public int getConfigCountNoteButtons(){
         String value = this.read(KEY_CONFIG_COUNT_NOTE_BTNS);
         return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_COUNT_NOTE_BTNS : Integer.parseInt(value);
@@ -93,6 +105,9 @@ public class ConfigManager {
     }
     
     /* SET */
+    public  void setConfigCountMisure(String value){
+        this.write(KEY_CONFIG_COUNT_MISURE_BTNS,value);
+    }
     public  void setConfigCountNoteButtons(String value){
         this.write(KEY_CONFIG_COUNT_NOTE_BTNS,value);
     }
@@ -104,5 +119,19 @@ public class ConfigManager {
     }
     public void setConfigBPM(String value){
         this.write(KEY_CONFIG_BPM,value);
+    }
+    
+    
+    
+    public static float[] getListFrequences(){
+        int countNotesButtons = getInstance().getConfigCountNoteButtons();
+        float minFreq = Float.valueOf(getInstance().getConfigMinFreq());
+        float step = getInstance().getConfigStepFreq()/countNotesButtons;
+        
+        float[] list = new float[countNotesButtons];
+        for (int i = 0; i < countNotesButtons; i++) {
+            list[i] = minFreq + (i*step);
+        }
+        return list;
     }
 }
