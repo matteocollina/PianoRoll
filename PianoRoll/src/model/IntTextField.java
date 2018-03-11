@@ -16,15 +16,18 @@ import javax.swing.JTextField;
  */
 public class IntTextField extends JTextField implements KeyListener{
     private int limit;
+    private int defvalue;
     
-    public IntTextField(String text,int limit) {
-        super(text,4);
+    public IntTextField(String text,int limit,int defvalue) {
+        super(text, limit);
         this.limit = limit;
+        this.defvalue = defvalue;
         addKeyListener(this);
     }
-    public IntTextField(String text, int columns,int limit) {
+    public IntTextField(String text, int columns,int limit,int defvalue) {
         super(text,columns);
         this.limit = limit;
+        this.defvalue = defvalue;
         addKeyListener(this);
     }
     
@@ -49,6 +52,10 @@ public class IntTextField extends JTextField implements KeyListener{
             this.setText(this.getText());
         } catch (Exception exception) {
             System.out.println(exception);
+        }
+        //If field is empty, force to fill with default value
+        if (this.getText().length()==0) {
+            this.setText(Integer.toString(this.defvalue));
         }
     }
 }

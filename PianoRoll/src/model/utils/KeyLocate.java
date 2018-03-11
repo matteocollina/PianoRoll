@@ -17,4 +17,6 @@ public final class KeyLocate {
     public static String BPM = "BPM";
     public static String FREQ_MIN = "FREQ_MIN";
     public static String FREQ_MAX = "FREQ_MAX";
+    public static String SINE = "SINE";
+    public static String WAVE = "WAVE";
 }

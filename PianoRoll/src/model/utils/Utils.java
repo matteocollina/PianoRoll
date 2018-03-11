@@ -26,6 +26,22 @@ public class Utils {
     private static Hashtable resourceBundles = new Hashtable();
     private static final String FILENAME_STRINGS = "resources.lang.app_string";
     
+    public static class FIELDS {
+        public static class DEFAULT_VALUE {
+            public static int BPM = 10;
+            public static int MIN_FREQ = 100;
+            public static int MAX_FREQ = 100;
+            public static int NOTE = 1;
+            public static int MISURE = 1;
+        }
+        public static class LIMIT_CHAR {
+            public static int BPM = 4;
+            public static int FREQ = 7;
+            public static int NOTE = 2;
+            public static int MISURE = 3;
+        }
+    }
+    
     /**
      * 
      * @param name name of images (include extension)

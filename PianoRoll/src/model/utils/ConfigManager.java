@@ -35,6 +35,8 @@ public class ConfigManager {
     private String DEFAULT_CONFIG_MAX_FREQ = "4186.01";
     private String KEY_CONFIG_BPM = "key_bpm";
     private String DEFAULT_CONFIG_BPM = "100";
+    private String KEY_CONFIG_OSCILLATOR = "key_oscillator";
+    private String DEFAULT_CONFIG_OSCILLATOR = Utils.getAppString(KeyLocate.SINE);
  
     public ConfigManager(){
         this._properties = new Properties();
@@ -103,6 +105,10 @@ public class ConfigManager {
         String value = this.read(KEY_CONFIG_BPM);
         return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_BPM : value;
     }
+    public String getConfigTypeOScillator(){
+        String value = this.read(KEY_CONFIG_OSCILLATOR);
+        return (value==null || value.compareTo("")==0) ? DEFAULT_CONFIG_OSCILLATOR : value;
+    }
     
     /* SET */
     public  void setConfigCountMisure(String value){
@@ -119,6 +125,9 @@ public class ConfigManager {
     }
     public void setConfigBPM(String value){
         this.write(KEY_CONFIG_BPM,value);
+    }
+    public void setConfigTypeOscillatore(String value){
+        this.write(KEY_CONFIG_OSCILLATOR,value);
     }
     
     
