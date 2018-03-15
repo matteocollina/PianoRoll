@@ -24,6 +24,7 @@ public class Utils {
     private static final String ICO_STOP = "ic_stop_black_2x.png";
     private static final String ICO_PAUSE = "ic_pause_black_2x.png";
     private static final String ICO_PLAY = "ic_play_black_2x.png";
+    private static final String ICO_SAVE = "ic_update_black_2x.png";
     private static Hashtable resourceBundles = new Hashtable();
     private static final String FILENAME_STRINGS = "resources.lang.app_string";
     
@@ -81,6 +82,10 @@ public class Utils {
 
     public static ImageIcon getPlayIcon(int width, int height, float resize) {
         return new Utils().getIconWithNameAndSize(ICO_PLAY, width, height, resize);
+    }
+    
+    public static ImageIcon getSaveIcon(int width, int height, float resize) {
+        return new Utils().getIconWithNameAndSize(ICO_SAVE, width, height, resize);
     }
     //</editor-fold>
     

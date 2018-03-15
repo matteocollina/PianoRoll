@@ -89,7 +89,7 @@ public class TopBar extends JPanel{
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Stop Audio");
-                ScoreSingleton.getInstance().stop();
+                ScoreSingleton.getInstance().stop(true);
             }
         });
         btnPause.addActionListener(new ActionListener() {
@@ -122,7 +122,7 @@ public class TopBar extends JPanel{
         SettingGroupPanel misureGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, countMisuresTextField, Utils.getAppString(KeyLocate.MISURE));
         this.add(misureGroupPanel);
         
-        JButton btnSave = new JButton(Utils.getAppString(KeyLocate.SALVA));
+        SettingButton btnSave = new SettingButton(Utils.getSaveIcon(HEIGHT,HEIGHT, (float) 0.5));        
         btnSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -140,7 +140,7 @@ public class TopBar extends JPanel{
         ConfigManager.getInstance().setConfigCountNoteButtons(countNoteButtonsTextField.getText());
         ConfigManager.getInstance().setConfigCountMisure(countMisuresTextField.getText());
         ConfigManager.getInstance().setConfigTypeOscillatore((Oscillator.OTYPE) comboListOScillator.getSelectedItem());
-        JOptionPane.showMessageDialog(topFrame, Utils.getAppString(KeyLocate.CONFIGURAZIONE_SALVATA));
+        //JOptionPane.showMessageDialog(topFrame, Utils.getAppString(KeyLocate.CONFIGURAZIONE_SALVATA));
         getPianoRollContent().reloadGraphic();
     }
     

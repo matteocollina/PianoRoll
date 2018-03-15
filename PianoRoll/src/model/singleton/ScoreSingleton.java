@@ -19,6 +19,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JLabel;
@@ -46,9 +48,9 @@ public class ScoreSingleton implements JMC {
     private TopBar topBar;
     private DateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss.SSS");
     private boolean inOnPause = false;
+    private HashMap<TimeStamp,HashMap<Double,Double>> noteMap = new HashMap<>(); //timestamp: <freq,duration>
 
     private static ScoreSingleton instance;
-    //private HashMap<Float,ArrayList<Boolean>> score;
     private Score score;
     private TimerAudio timerSong;
 
@@ -136,6 +138,10 @@ public class ScoreSingleton implements JMC {
 
         }
     }
+    
+    private double getDurationNote(){
+        return 60.0 / score.getTempo();
+    }
 
     private void initSynth() {
         System.out.println("Init Synth");
@@ -159,8 +165,6 @@ public class ScoreSingleton implements JMC {
             osc.getOutput().connect(0, lineOut.input, 1);
             listOscillators.add(osc);
         }
-        // Start synthesizer using default stereo output at 44100 Hz.
-        synth.start();
     }
 
     public void play() {
@@ -172,6 +176,9 @@ public class ScoreSingleton implements JMC {
                     System.out.println("---------------- PLAY ----------------");
                     blockPlaying();
 
+                    // Start synthesizer using default stereo output at 44100 Hz.
+                    synth.start();
+                    
                     // Get synthesizer time in seconds.
                     double timeNow = synth.getCurrentTime();
 
@@ -194,12 +201,27 @@ public class ScoreSingleton implements JMC {
                                 Note currNote = currPhrase.getNoteArray()[i];
 
                                 double freq = currNote.getFrequency();
-                                double duration = currNote.getDuration();
+                                
+                                /*
+                                - es. 120BPM => Pulsazione dura 60/120=0.5s
+                                - 0.5s / 4 = 0.125s     //note da 1/4
+                                (oppure 0.5s / 8 = 0.0625s     //note da 1/8
+                                */
+                                double duration = getDurationNote() / ConfigManager.getInstance().getConfigMinDurate();                                 
+                                
                                 UnitOscillator currOscillator = (UnitOscillator) listOscillators.get(indp);
-                                //TODO: Revisone Ampiezza, se le note sono allo steso istante, diminuire amp.
+                                
+
                                 currOscillator.noteOn(freq, 1.0 / ConfigManager.getListFrequences().length, timeStamp);
                                 currOscillator.noteOff(timeStamp.makeRelative(duration));
+                                
+                                //TODO: Revisone Ampiezza, se le note sono allo steso istante, diminuire amp.
+                                noteMap.put(timeStamp, new HashMap<Double, Double>() {{
+                                    put(freq,duration);
+                                }});
+                                
                                 if (currNote.getPitch() != REST) {
+                                    System.out.println("duration : " + duration);
                                     //System.out.println("\tNote " + i + " from : " + timeStamp.getTime() + " to: " + timeStamp.makeRelative(duration).getTime());
                                 }
                                 timeStamp = timeStamp.makeRelative(duration);
@@ -211,14 +233,19 @@ public class ScoreSingleton implements JMC {
                 } catch (Exception e) {
                     System.out.println(e.toString());
                 }
+                
 
                 int endTransactionTime = 500; //or 500 ms
-                long duratePulsation = (long) (60.0 / score.getTempo() * 1000); //ms
-                long endTime = (long) (score.getEndTime() * 1000) + endTransactionTime;
+                long duratePulsation = (long) (getDurationNote() * 1000); //ms
+                
+                
+                long endTime = (long)(((getDurationNote()) 
+                                            * ConfigManager.getInstance().getConfigCountMisureButtons()) * 1000) 
+                                            + endTransactionTime;
 
                 System.out.println("BPM : " + score.getTempo() + ""
-                        + "\nDurata pulsazione (s) : " + (duratePulsation / 1000)
-                        + "\nDurata brano (s) : " + (endTime / 1000));
+                        + "\nDurata pulsazione (ms) : " + (duratePulsation )
+                        + "\nDurata brano (ms) : " + (endTime ));
 
                 timerSong = new TimerAudio(duratePulsation, endTime) {
                     @Override
@@ -232,7 +259,7 @@ public class ScoreSingleton implements JMC {
                     protected void onFinish() {
                         System.out.println("onFinish ");
                         manageClock(getElapsedTimeTicking());
-                        stop();
+                        stop(false);
                     }
 
                     @Override
@@ -259,13 +286,16 @@ public class ScoreSingleton implements JMC {
         }
     }
 
-    public void stop() {
+    public void stop(boolean resetTimer) {
         System.out.println("---------------- STOP ----------------");
+        synth.stop();
         inOnPause = false;
         allowPlaying();
         lineOut.stop();
         timerSong.cancel();
-        //manageClock(0);
+        if(resetTimer){
+            manageClock(0);
+        }
     }
 
     public void pause() {

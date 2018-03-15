@@ -24,12 +24,15 @@ public class ConfigManager {
     private Properties _properties;
     private final String _filename = "pianoroll.properties";
     
+    private int DEFAULT_BEAT = 4; //  4/4
+    
+    private int DEFAULT_CONFIG_MIN_DURATE = 4; //   1/4
+    public static final double DEFAULT_CONFIG_RYTHM_MIN_DURATE = JMC.SEMI_QUAVER;
+    
     private String KEY_CONFIG_COUNT_NOTE_BTNS = "key_count_note_btns";
     private String KEY_CONFIG_COUNT_MISURE_BTNS = "key_count_misure_btns";
     private int DEFAULT_CONFIG_COUNT_NOTE_BTNS = 10;
     private int DEFAULT_CONFIG_COUNT_MISURE_BTNS = 2;
-    private int DEFAULT_CONFIG_MIN_DURATE = 4;
-    public static final double DEFAULT_CONFIG_RYTHM_MIN_DURATE = JMC.SEMI_QUAVER;
     private String KEY_CONFIG_MIN_FREQ = "key_min_freq";
     private String DEFAULT_CONFIG_MIN_FREQ = "27.5";
     private String KEY_CONFIG_MAX_FREQ = "key_max_freq";
@@ -80,6 +83,9 @@ public class ConfigManager {
     }
     
     /* GET */
+    public int getBeat(){
+        return DEFAULT_BEAT;
+    }
     public int getConfigMinDurate(){
         return DEFAULT_CONFIG_MIN_DURATE;
     }
