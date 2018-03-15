@@ -7,7 +7,6 @@ package model.singleton;
 
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
-import com.jsyn.unitgen.ImpulseOscillator;
 import com.jsyn.unitgen.LineOut;
 import com.jsyn.unitgen.SawtoothOscillator;
 import com.jsyn.unitgen.SineOscillator;
@@ -16,35 +15,22 @@ import com.jsyn.unitgen.TriangleOscillator;
 import com.jsyn.unitgen.UnitOscillator;
 import com.softsynth.shared.time.TimeStamp;
 import java.awt.Color;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAmount;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.text.View;
 import jm.JMC;
-import static jm.constants.Durations.M;
-import static jm.constants.Durations.SB;
-import jm.util.*;
 import jm.music.data.Note;
 import jm.music.data.Part;
 import jm.music.data.Phrase;
 import jm.music.data.Score;
-import jm.util.Play;
-import jm.util.Write;
 import model.NoteBlock;
 import model.utils.ConfigManager;
 import model.instrument.GoogleWaveOscillator;
-import model.Oscillator;
-import model.utils.KeyLocate;
 import model.utils.Timer;
-import model.utils.Utils;
-import pianoroll.controller.PianoRollContent;
+import pianoroll.controller.TopBar;
+
 /**
  *
  * @author MacBook
@@ -54,7 +40,11 @@ public class ScoreSingleton implements JMC {
     Synthesizer synth;
     ArrayList listOscillators;
     LineOut lineOut;
-    private JLabel timeLabel;    
+    private JLabel timeLabel;
+    private TopBar topBar;
+    private DateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss.SSS");
+    private boolean isPlaying = false;
+
     private static ScoreSingleton instance;
     //private HashMap<Float,ArrayList<Boolean>> score;
     private Score score;
@@ -62,7 +52,6 @@ public class ScoreSingleton implements JMC {
     private ScoreSingleton() {
 
     }
-
 
     //static block initialization for exception handling
     static {
@@ -102,12 +91,15 @@ public class ScoreSingleton implements JMC {
         initSynth();
     }
 
-    public void setTimeLabel(JLabel jLabel){
-        timeLabel = jLabel;
+    
+    public void setTopbar(TopBar topBar) {
+        this.topBar = topBar;
     }
-    public JLabel getTimeLabel(){
-        return timeLabel;
+    private TopBar getTopbar() {
+        return this.topBar;
     }
+
+
     public void setNoteInPartAndPhraseAthIndex(NoteBlock noteBlock, boolean set) {
         Part oldPart = score.getPart(noteBlock.getPart());
         Phrase oldPhrase = oldPart.getPhrase(noteBlock.getPhrase());
@@ -117,30 +109,28 @@ public class ScoreSingleton implements JMC {
         n.setDuration(n.getRhythmValue());
         oldPhrase.setNote(n, noteBlock.getIndex());
     }
-    
-   
-    private UnitOscillator getOscillator(){
-        switch(ConfigManager.getInstance().getConfigTypeOScillator()){
-            case SINE:{
+
+    private UnitOscillator getOscillator() {
+        switch (ConfigManager.getInstance().getConfigTypeOScillator()) {
+            case SINE: {
                 return new SineOscillator();
             }
-            case WAVE:{
+            case WAVE: {
                 return new GoogleWaveOscillator();
             }
-            case SAW:{
+            case SAW: {
                 return new SawtoothOscillator();
             }
-            case TRIANGLE:{
+            case TRIANGLE: {
                 return new TriangleOscillator();
             }
-            case SQUARE:{
+            case SQUARE: {
                 return new SquareOscillator();
             }
-            default:{
+            default: {
                 return new SineOscillator();
             }
-            
-            
+
         }
     }
 
@@ -155,7 +145,7 @@ public class ScoreSingleton implements JMC {
         // Add a tone generator.
         // Connect the oscillator to the left and right audio output.
         listOscillators = new ArrayList<>();
-        for (int i = 0; i < score.getPartArray().length; i++) {            
+        for (int i = 0; i < score.getPartArray().length; i++) {
             //TODO: Swith and create class osc type
             UnitOscillator osc = getOscillator();
             //L'ampiezza è suddivisa tra i canali (??)
@@ -170,113 +160,130 @@ public class ScoreSingleton implements JMC {
         synth.start();
     }
 
-    public void play() {    
-        try {
-            System.out.println("---------------- PLAY ----------------");
-            lineOut.stop();
+    public void play() {
+        //Block permission to play while playing.
+        
+        if (canPlaying()) {
+            try {
+                System.out.println("---------------- PLAY ----------------");
+                blockPlaying();
+                lineOut.stop();
 
-            // Get synthesizer time in seconds.
-            double timeNow = synth.getCurrentTime();
+                // Get synthesizer time in seconds.
+                double timeNow = synth.getCurrentTime();
 
-            // Advance to a near future time so we have a clean start.
-            TimeStamp timeStamp = new TimeStamp(timeNow);
-            TimeStamp timeStampParts = new TimeStamp(timeStamp.getTime());
+                // Advance to a near future time so we have a clean start.
+                TimeStamp timeStamp = new TimeStamp(timeNow);
+                TimeStamp timeStampParts = new TimeStamp(timeStamp.getTime());
 
-            Score s = new Score();
-            s.setTempo(score.getTempo());
+                Score s = new Score();
+                s.setTempo(score.getTempo());
 
-            for (int indp = 0; indp < score.getPartArray().length; indp++) {
-                Part currPart = score.getPartArray()[indp];
+                for (int indp = 0; indp < score.getPartArray().length; indp++) {
+                    Part currPart = score.getPartArray()[indp];
 
-                timeStamp = new TimeStamp(timeStampParts.getTime());
-                //System.out.println("PART " + indp + " at : " + timeStamp.getTime());
+                    timeStamp = new TimeStamp(timeStampParts.getTime());
+                    //System.out.println("PART " + indp + " at : " + timeStamp.getTime());
 
-                for (int indph = 0; indph < currPart.getPhraseArray().length; indph++) {
-                    Phrase currPhrase = currPart.getPhraseArray()[indph];
-                    for (int i = 0; i < currPhrase.getNoteArray().length; i++) {
-                        Note currNote = currPhrase.getNoteArray()[i];
+                    for (int indph = 0; indph < currPart.getPhraseArray().length; indph++) {
+                        Phrase currPhrase = currPart.getPhraseArray()[indph];
+                        for (int i = 0; i < currPhrase.getNoteArray().length; i++) {
+                            Note currNote = currPhrase.getNoteArray()[i];
 
-                        double freq = currNote.getFrequency();
-                        double duration = currNote.getDuration();
-                        UnitOscillator currOscillator = (UnitOscillator) listOscillators.get(indp);
-                        //TODO: Revisone Ampiezza, se le note sono allo steso istante, diminuire amp.
-                        currOscillator.noteOn(freq, 1.0 / ConfigManager.getListFrequences().length, timeStamp);
-                        currOscillator.noteOff(timeStamp.makeRelative(duration));
-                        if (currNote.getPitch() != REST) {
-                            //System.out.println("\tNote " + i + " from : " + timeStamp.getTime() + " to: " + timeStamp.makeRelative(duration).getTime());
+                            double freq = currNote.getFrequency();
+                            double duration = currNote.getDuration();
+                            UnitOscillator currOscillator = (UnitOscillator) listOscillators.get(indp);
+                            //TODO: Revisone Ampiezza, se le note sono allo steso istante, diminuire amp.
+                            currOscillator.noteOn(freq, 1.0 / ConfigManager.getListFrequences().length, timeStamp);
+                            currOscillator.noteOff(timeStamp.makeRelative(duration));
+                            if (currNote.getPitch() != REST) {
+                                //System.out.println("\tNote " + i + " from : " + timeStamp.getTime() + " to: " + timeStamp.makeRelative(duration).getTime());
+                            }
+                            timeStamp = timeStamp.makeRelative(duration);
                         }
-                        timeStamp = timeStamp.makeRelative(duration);
                     }
                 }
-            }
-            // We only need to start the LineOut. It will pull data from the oscillator
-            lineOut.start();
-        } catch (Exception e) {
-            System.out.println(e.toString());
-        } 
-        int endTransactionTime = 0; //or 500 ms
-        long duratePulsation = (long) (60.0/score.getTempo() * 1000); //ms
-        long endTime = (long) (score.getEndTime() * 1000) + endTransactionTime;
-        System.out.println("BPM : " + score.getTempo() + ""
-                + "\nDurata pulsazione (s) : " + (duratePulsation/1000)
-                + "\nDurata brano (s) : " + (endTime/1000));
-
-        
-        Timer timer = new Timer(duratePulsation, endTime) {            
-            @Override
-            public void start() {
-                System.out.println("start");
-                manageClock(getElapsedTimeTicking());
-                super.start(); //To change body of generated methods, choose Tools | Templates.
+                // We only need to start the LineOut. It will pull data from the oscillator
+                lineOut.start();
+            } catch (Exception e) {
+                System.out.println(e.toString());
             }
             
-            @Override
-            protected void onFinish() {
-                System.out.println("onFinish ");
-                manageClock(getElapsedTimeTicking());
-                stop(); 
-            }
+            int endTransactionTime = 0; //or 500 ms
+            long duratePulsation = (long) (60.0 / score.getTempo() * 1000); //ms
+            long endTime = (long) (score.getEndTime() * 1000) + endTransactionTime;
+            
+            System.out.println("BPM : " + score.getTempo() + ""
+                    + "\nDurata pulsazione (s) : " + (duratePulsation / 1000)
+                    + "\nDurata brano (s) : " + (endTime / 1000));
 
-            @Override
-            protected void onTick() {
-                
-            }
+            Timer timer = new Timer(duratePulsation, endTime) {
+                @Override
+                public void start() {
+                    System.out.println("start");
+                    manageClock(getElapsedTimeTicking());
+                    super.start(); //To change body of generated methods, choose Tools | Templates.
+                }
 
-            @Override
-            protected void onTicking() {
-                manageClock(getElapsedTimeTicking());
+                @Override
+                protected void onFinish() {
+                    System.out.println("onFinish ");
+                    manageClock(getElapsedTimeTicking());
+                    stop();
+                }
+
+                @Override
+                protected void onTick() {
+
+                }
+
+                @Override
+                protected void onTicking() {
+                    manageClock(getElapsedTimeTicking());
+                }
+            };
+
+            try {
+                timer.start();
+            } catch (Exception e) {
+                System.out.println(e.toString());
             }
-        };
-        
-        try {
-            timer.start();
-        } catch (Exception e) {
-            System.out.println(e.toString());
+        }else{
+            System.out.println("-- song is playing --");
         }
-        
     }
-
 
     public void stop() {
         // Stop everything.
         System.out.println("---------------- STOP ----------------");
+        allowPlaying();
         double fadeOut = 500;
         lineOut.stop(new TimeStamp(fadeOut));
     }
 
     public void pause() {
+        allowPlaying();
         lineOut.stop(); //TODO
     }
-   
+
     public void readScore() {
         System.out.println(score.toString());
     }
-    
-    private void manageClock(double seconds){     
-       getTimeLabel().setBackground(Color.red);
-       getTimeLabel().setText(Double.toString(seconds));
-    }
 
+    private void manageClock(long seconds) {
+        getTopbar().getTimeLabel().setText(timeFormatter.format(new Date(seconds)));
+    }
     
+    private boolean canPlaying(){
+        return getTopbar().getPlayButton().isEnabled();
+    }
+    private void blockPlaying(){
+        getTopbar().getPlayButton().setEnabled(false);
+        //getTopbar().getPlayButton().setBackground(Color.GRAY);
+    }
+    private void allowPlaying(){
+        getTopbar().getPlayButton().setEnabled(true);
+        //getTopbar().getPlayButton().setBackground(Color.RED);
+    }
 
 }

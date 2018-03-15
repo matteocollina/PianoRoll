@@ -72,9 +72,7 @@ public class TopBar extends JPanel{
         maxFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMaxFreq(),Utils.FIELDS.LIMIT_CHAR.FREQ,Utils.FIELDS.DEFAULT_VALUE.MAX_FREQ);
         SettingGroupPanel maxFreqGroupPanel = new SettingGroupPanel(WIDTH_FREQ, HEIGHT_GROUP, maxFreqTextField, Utils.getAppString(KeyLocate.FREQ_MAX));
         this.add(maxFreqGroupPanel);
-        
-        
-        ScoreSingleton.getInstance().setTimeLabel(timeLabel);
+                
         this.add(timeLabel);
         
         for (int i = 0; i < listButtons.length; i++) {
@@ -130,7 +128,8 @@ public class TopBar extends JPanel{
                 saveConfig();
             }
         });
-        this.add(btnSave);        
+        this.add(btnSave); 
+        ScoreSingleton.getInstance().setTopbar(this);
     }
     
     private void saveConfig(){          
@@ -146,6 +145,12 @@ public class TopBar extends JPanel{
     
     private PianoRollContent getPianoRollContent(){
         return (PianoRollContent) javax.swing.SwingUtilities.getWindowAncestor(this);
+    }
+    public JLabel getTimeLabel(){
+        return this.timeLabel;
+    }
+    public SettingButton getPlayButton(){
+        return this.btnPlay;
     }
         
 }

@@ -6,6 +6,7 @@
 package model.utils;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -20,9 +21,9 @@ import javax.swing.JButton;
  */
 public class Utils {
     private static final String ICO_SETTINGS = "ic_settings_2x.png";
-    private static final String ICO_STOP = "ic_stop_2x.png";
-    private static final String ICO_PAUSE = "ic_pause_2x.png";
-    private static final String ICO_PLAY = "ic_play_2x.png";
+    private static final String ICO_STOP = "ic_stop_black_2x.png";
+    private static final String ICO_PAUSE = "ic_pause_black_2x.png";
+    private static final String ICO_PLAY = "ic_play_black_2x.png";
     private static Hashtable resourceBundles = new Hashtable();
     private static final String FILENAME_STRINGS = "resources.lang.app_string";
     
@@ -48,7 +49,10 @@ public class Utils {
      * @return Image
      */
     private Image getImageWithName(String name){
-        try {
+        try {/*
+            BufferedImage in = ImageIO.read(getClass().getResource("/resources/images/" + name));
+            return new BufferedImage(
+                in.getWidth(), in.getHeight(), BufferedImage.TYPE_INT_RGB);*/
             return ImageIO.read(getClass().getResource("/resources/images/" + name));
         } catch (Exception e) {
             System.out.println(e);

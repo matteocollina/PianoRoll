@@ -5,6 +5,8 @@
  */
 package model;
 
+import model.ColorIcon;
+import java.awt.Color;
 import javax.swing.Icon;
 import javax.swing.JButton;
 
@@ -15,8 +17,5 @@ import javax.swing.JButton;
 public class SettingButton extends JButton{
     public SettingButton(Icon icon) {
         super(icon);
-        this.setOpaque(false);
-        this.setContentAreaFilled(false);
-        this.setBorderPainted(false);
     }
 }
