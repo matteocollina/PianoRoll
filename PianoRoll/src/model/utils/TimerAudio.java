@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @author Sridhar Sundar Raman
  * 
  */
-public abstract class Timer {
+public abstract class TimerAudio {
 	public static final int DURATION_INFINITY = -1;
 	private volatile boolean isRunning = false;
 	private long interval;
@@ -38,7 +38,7 @@ public abstract class Timer {
 	 * Default constructor which sets the interval to 1000 ms (1s) and the
 	 * duration to {@link Timer#DURATION_INFINITY}
 	 */
-	public Timer() {
+	public TimerAudio() {
 		this(1000, -1);
 	}
 
@@ -48,7 +48,7 @@ public abstract class Timer {
 	 * @param duration
 	 *            The period in millis for which the timer should run. Set it to {@code Timer#DURATION_INFINITY} if the timer has to run indefinitely.
 	 */
-	public Timer(long interval, long duration) {
+	public TimerAudio(long interval, long duration) {
 		this.interval = interval;
 		this.duration = duration;
 		this.elapsedTime = 0;
@@ -66,7 +66,7 @@ public abstract class Timer {
 			@Override
 			public void run() {
 				onTick();
-				elapsedTime += Timer.this.interval;
+				elapsedTime += TimerAudio.this.interval;
 				if (duration > 0) {
 					if(elapsedTime >=duration){
 						onFinish();
@@ -81,7 +81,7 @@ public abstract class Timer {
                     @Override
                     public void run() {
                         onTicking();
-                        elapsedTimeTicking += Timer.this.clockInterval;
+                        elapsedTimeTicking += TimerAudio.this.clockInterval;
                         if (duration > 0) {
 					if(elapsedTimeTicking >=duration){
 						onFinish();
@@ -89,7 +89,7 @@ public abstract class Timer {
 					}
 				}
                     }
-                }, 0, Timer.this.clockInterval, TimeUnit.MILLISECONDS);
+                }, 0, TimerAudio.this.clockInterval, TimeUnit.MILLISECONDS);
 	}
 
 	/**
@@ -153,7 +153,7 @@ public abstract class Timer {
 	 */
 	public long getRemainingTime(){
 		if(this.duration <0){
-			return Timer.DURATION_INFINITY;
+			return TimerAudio.DURATION_INFINITY;
 		}
 		else{
 			return duration-elapsedTime;
@@ -161,7 +161,7 @@ public abstract class Timer {
 	}
         public long getRemainingTimeTicking(){
 		if(this.duration <0){
-			return Timer.DURATION_INFINITY;
+			return TimerAudio.DURATION_INFINITY;
 		}
 		else{
 			return duration-elapsedTimeTicking;

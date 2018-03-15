@@ -135,12 +135,19 @@ public class ConfigManager {
     
     public static float[] getListFrequences(){
         int countNotesButtons = getInstance().getConfigCountNoteButtons();
-        float minFreq = Float.valueOf(getInstance().getConfigMinFreq());
-        float step = getInstance().getConfigStepFreq()/countNotesButtons;
-        
         float[] list = new float[countNotesButtons];
+        float minFreq = Float.valueOf(getInstance().getConfigMinFreq());
+        float maxFreq = Float.valueOf(getInstance().getConfigMaxFreq());        
+        float step = countNotesButtons > 2 ? getInstance().getConfigStepFreq() / ((countNotesButtons-2)+1) : 0;
+        
         for (int i = 0; i < countNotesButtons; i++) {
-            list[i] = minFreq + (i*step);
+            if(i==0){
+               list[i] = minFreq;
+            }else if(i==countNotesButtons-1){
+                list[i] = maxFreq;
+            }else{
+                list[i] = minFreq + (i*step);
+            }
         }
         return list;
     }

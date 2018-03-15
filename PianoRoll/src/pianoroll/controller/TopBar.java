@@ -39,7 +39,7 @@ public class TopBar extends JPanel{
     private final SettingButton btnStop = new SettingButton(Utils.getStopIcon(HEIGHT,HEIGHT, (float) 0.5));
     private final SettingButton btnPause = new SettingButton(Utils.getPauseIcon(HEIGHT,HEIGHT, (float) 0.5));
     private final SettingButton btnPlay = new SettingButton(Utils.getPlayIcon(HEIGHT,HEIGHT, (float) 0.5));
-    private SettingButton[] listButtons = {btnStop,btnPause,btnPlay};
+    private SettingButton[] listButtons = {btnStop,btnPlay};
     private final Oscillator.OTYPE[] listTimbri = {Oscillator.OTYPE.SINE,Oscillator.OTYPE.WAVE,Oscillator.OTYPE.SAW,Oscillator.OTYPE.SQUARE,Oscillator.OTYPE.TRIANGLE};
     private JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
     private int MAX_CHAR = 4;
@@ -61,7 +61,7 @@ public class TopBar extends JPanel{
     
     public TopBar() {
         super();
-        setBackground(Color.BLUE);
+        setBackground(Color.LIGHT_GRAY);
         setPreferredSize(new Dimension(0, HEIGHT));
         this.setLayout(new FlowLayout(FlowLayout.TRAILING));
                
@@ -72,7 +72,8 @@ public class TopBar extends JPanel{
         maxFreqTextField = new IntTextField(ConfigManager.getInstance().getConfigMaxFreq(),Utils.FIELDS.LIMIT_CHAR.FREQ,Utils.FIELDS.DEFAULT_VALUE.MAX_FREQ);
         SettingGroupPanel maxFreqGroupPanel = new SettingGroupPanel(WIDTH_FREQ, HEIGHT_GROUP, maxFreqTextField, Utils.getAppString(KeyLocate.FREQ_MAX));
         this.add(maxFreqGroupPanel);
-                
+               
+        timeLabel.setBackground(Color.WHITE);
         this.add(timeLabel);
         
         for (int i = 0; i < listButtons.length; i++) {

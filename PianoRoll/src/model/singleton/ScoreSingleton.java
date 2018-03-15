@@ -19,6 +19,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.JLabel;
 import jm.JMC;
 import jm.music.data.Note;
@@ -28,7 +30,7 @@ import jm.music.data.Score;
 import model.NoteBlock;
 import model.utils.ConfigManager;
 import model.instrument.GoogleWaveOscillator;
-import model.utils.Timer;
+import model.utils.TimerAudio;
 import pianoroll.controller.TopBar;
 
 /**
@@ -43,11 +45,12 @@ public class ScoreSingleton implements JMC {
     private JLabel timeLabel;
     private TopBar topBar;
     private DateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss.SSS");
-    private boolean isPlaying = false;
+    private boolean inOnPause = false;
 
     private static ScoreSingleton instance;
     //private HashMap<Float,ArrayList<Boolean>> score;
     private Score score;
+    private TimerAudio timerSong;
 
     private ScoreSingleton() {
 
@@ -89,16 +92,16 @@ public class ScoreSingleton implements JMC {
             score.add(part);
         }
         initSynth();
+        manageClock(0);
     }
 
-    
     public void setTopbar(TopBar topBar) {
         this.topBar = topBar;
     }
+
     private TopBar getTopbar() {
         return this.topBar;
     }
-
 
     public void setNoteInPartAndPhraseAthIndex(NoteBlock noteBlock, boolean set) {
         Part oldPart = score.getPart(noteBlock.getPart());
@@ -162,108 +165,117 @@ public class ScoreSingleton implements JMC {
 
     public void play() {
         //Block permission to play while playing.
-        
         if (canPlaying()) {
-            try {
-                System.out.println("---------------- PLAY ----------------");
-                blockPlaying();
-                lineOut.stop();
+            //if resume from pause
+            if (!inOnPause) {
+                try {
+                    System.out.println("---------------- PLAY ----------------");
+                    blockPlaying();
 
-                // Get synthesizer time in seconds.
-                double timeNow = synth.getCurrentTime();
+                    // Get synthesizer time in seconds.
+                    double timeNow = synth.getCurrentTime();
 
-                // Advance to a near future time so we have a clean start.
-                TimeStamp timeStamp = new TimeStamp(timeNow);
-                TimeStamp timeStampParts = new TimeStamp(timeStamp.getTime());
+                    // Advance to a near future time so we have a clean start.
+                    TimeStamp timeStamp = new TimeStamp(timeNow);
+                    TimeStamp timeStampParts = new TimeStamp(timeStamp.getTime());
 
-                Score s = new Score();
-                s.setTempo(score.getTempo());
+                    Score s = new Score();
+                    s.setTempo(score.getTempo());
 
-                for (int indp = 0; indp < score.getPartArray().length; indp++) {
-                    Part currPart = score.getPartArray()[indp];
+                    for (int indp = 0; indp < score.getPartArray().length; indp++) {
+                        Part currPart = score.getPartArray()[indp];
 
-                    timeStamp = new TimeStamp(timeStampParts.getTime());
-                    //System.out.println("PART " + indp + " at : " + timeStamp.getTime());
+                        timeStamp = new TimeStamp(timeStampParts.getTime());
+                        //System.out.println("PART " + indp + " at : " + timeStamp.getTime());
 
-                    for (int indph = 0; indph < currPart.getPhraseArray().length; indph++) {
-                        Phrase currPhrase = currPart.getPhraseArray()[indph];
-                        for (int i = 0; i < currPhrase.getNoteArray().length; i++) {
-                            Note currNote = currPhrase.getNoteArray()[i];
+                        for (int indph = 0; indph < currPart.getPhraseArray().length; indph++) {
+                            Phrase currPhrase = currPart.getPhraseArray()[indph];
+                            for (int i = 0; i < currPhrase.getNoteArray().length; i++) {
+                                Note currNote = currPhrase.getNoteArray()[i];
 
-                            double freq = currNote.getFrequency();
-                            double duration = currNote.getDuration();
-                            UnitOscillator currOscillator = (UnitOscillator) listOscillators.get(indp);
-                            //TODO: Revisone Ampiezza, se le note sono allo steso istante, diminuire amp.
-                            currOscillator.noteOn(freq, 1.0 / ConfigManager.getListFrequences().length, timeStamp);
-                            currOscillator.noteOff(timeStamp.makeRelative(duration));
-                            if (currNote.getPitch() != REST) {
-                                //System.out.println("\tNote " + i + " from : " + timeStamp.getTime() + " to: " + timeStamp.makeRelative(duration).getTime());
+                                double freq = currNote.getFrequency();
+                                double duration = currNote.getDuration();
+                                UnitOscillator currOscillator = (UnitOscillator) listOscillators.get(indp);
+                                //TODO: Revisone Ampiezza, se le note sono allo steso istante, diminuire amp.
+                                currOscillator.noteOn(freq, 1.0 / ConfigManager.getListFrequences().length, timeStamp);
+                                currOscillator.noteOff(timeStamp.makeRelative(duration));
+                                if (currNote.getPitch() != REST) {
+                                    //System.out.println("\tNote " + i + " from : " + timeStamp.getTime() + " to: " + timeStamp.makeRelative(duration).getTime());
+                                }
+                                timeStamp = timeStamp.makeRelative(duration);
                             }
-                            timeStamp = timeStamp.makeRelative(duration);
                         }
                     }
+                    // We only need to start the LineOut. It will pull data from the oscillator
+                    lineOut.start();
+                } catch (Exception e) {
+                    System.out.println(e.toString());
                 }
-                // We only need to start the LineOut. It will pull data from the oscillator
-                lineOut.start();
-            } catch (Exception e) {
-                System.out.println(e.toString());
+
+                int endTransactionTime = 500; //or 500 ms
+                long duratePulsation = (long) (60.0 / score.getTempo() * 1000); //ms
+                long endTime = (long) (score.getEndTime() * 1000) + endTransactionTime;
+
+                System.out.println("BPM : " + score.getTempo() + ""
+                        + "\nDurata pulsazione (s) : " + (duratePulsation / 1000)
+                        + "\nDurata brano (s) : " + (endTime / 1000));
+
+                timerSong = new TimerAudio(duratePulsation, endTime) {
+                    @Override
+                    public void start() {
+                        System.out.println("start");
+                        manageClock(getElapsedTimeTicking());
+                        super.start(); //To change body of generated methods, choose Tools | Templates.
+                    }
+
+                    @Override
+                    protected void onFinish() {
+                        System.out.println("onFinish ");
+                        manageClock(getElapsedTimeTicking());
+                        stop();
+                    }
+
+                    @Override
+                    protected void onTick() {
+
+                    }
+
+                    @Override
+                    protected void onTicking() {
+                        manageClock(getElapsedTimeTicking());
+                    }
+                };
+                try {
+                    timerSong.start();
+                } catch (Exception e) {
+                    System.out.println(e.toString());
+                }
+            }else{
+                //Resume from pause
+                timerSong.resume();
             }
-            
-            int endTransactionTime = 0; //or 500 ms
-            long duratePulsation = (long) (60.0 / score.getTempo() * 1000); //ms
-            long endTime = (long) (score.getEndTime() * 1000) + endTransactionTime;
-            
-            System.out.println("BPM : " + score.getTempo() + ""
-                    + "\nDurata pulsazione (s) : " + (duratePulsation / 1000)
-                    + "\nDurata brano (s) : " + (endTime / 1000));
-
-            Timer timer = new Timer(duratePulsation, endTime) {
-                @Override
-                public void start() {
-                    System.out.println("start");
-                    manageClock(getElapsedTimeTicking());
-                    super.start(); //To change body of generated methods, choose Tools | Templates.
-                }
-
-                @Override
-                protected void onFinish() {
-                    System.out.println("onFinish ");
-                    manageClock(getElapsedTimeTicking());
-                    stop();
-                }
-
-                @Override
-                protected void onTick() {
-
-                }
-
-                @Override
-                protected void onTicking() {
-                    manageClock(getElapsedTimeTicking());
-                }
-            };
-
-            try {
-                timer.start();
-            } catch (Exception e) {
-                System.out.println(e.toString());
-            }
-        }else{
+        } else {
             System.out.println("-- song is playing --");
         }
     }
 
     public void stop() {
-        // Stop everything.
         System.out.println("---------------- STOP ----------------");
+        inOnPause = false;
         allowPlaying();
-        double fadeOut = 500;
-        lineOut.stop(new TimeStamp(fadeOut));
+        lineOut.stop();
+        timerSong.cancel();
+        //manageClock(0);
     }
 
     public void pause() {
         allowPlaying();
-        lineOut.stop(); //TODO
+        timerSong.pause();
+        inOnPause = true;
+        try {
+        } catch (Exception e) {
+            System.out.println(">> ERROR while press pause : " + e.toString());
+        }
     }
 
     public void readScore() {
@@ -273,17 +285,17 @@ public class ScoreSingleton implements JMC {
     private void manageClock(long seconds) {
         getTopbar().getTimeLabel().setText(timeFormatter.format(new Date(seconds)));
     }
-    
-    private boolean canPlaying(){
+
+    private boolean canPlaying() {
         return getTopbar().getPlayButton().isEnabled();
     }
-    private void blockPlaying(){
+
+    private void blockPlaying() {
         getTopbar().getPlayButton().setEnabled(false);
-        //getTopbar().getPlayButton().setBackground(Color.GRAY);
     }
-    private void allowPlaying(){
+
+    private void allowPlaying() {
         getTopbar().getPlayButton().setEnabled(true);
-        //getTopbar().getPlayButton().setBackground(Color.RED);
     }
 
 }
