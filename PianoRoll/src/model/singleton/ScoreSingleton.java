@@ -7,23 +7,44 @@ package model.singleton;
 
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
+import com.jsyn.unitgen.ImpulseOscillator;
 import com.jsyn.unitgen.LineOut;
+import com.jsyn.unitgen.SawtoothOscillator;
 import com.jsyn.unitgen.SineOscillator;
+import com.jsyn.unitgen.SquareOscillator;
+import com.jsyn.unitgen.TriangleOscillator;
 import com.jsyn.unitgen.UnitOscillator;
 import com.softsynth.shared.time.TimeStamp;
+import java.awt.Color;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.text.View;
 import jm.JMC;
+import static jm.constants.Durations.M;
+import static jm.constants.Durations.SB;
+import jm.util.*;
 import jm.music.data.Note;
 import jm.music.data.Part;
 import jm.music.data.Phrase;
 import jm.music.data.Score;
+import jm.util.Play;
+import jm.util.Write;
 import model.NoteBlock;
 import model.utils.ConfigManager;
 import model.instrument.GoogleWaveOscillator;
+import model.Oscillator;
 import model.utils.KeyLocate;
 import model.utils.Timer;
 import model.utils.Utils;
-
+import pianoroll.controller.PianoRollContent;
 /**
  *
  * @author MacBook
@@ -33,7 +54,7 @@ public class ScoreSingleton implements JMC {
     Synthesizer synth;
     ArrayList listOscillators;
     LineOut lineOut;
-
+    private JLabel timeLabel;    
     private static ScoreSingleton instance;
     //private HashMap<Float,ArrayList<Boolean>> score;
     private Score score;
@@ -41,6 +62,7 @@ public class ScoreSingleton implements JMC {
     private ScoreSingleton() {
 
     }
+
 
     //static block initialization for exception handling
     static {
@@ -56,7 +78,7 @@ public class ScoreSingleton implements JMC {
     }
 
     public void reset() {
-        System.out.println("Reset singleton");
+        System.out.println("---- Reset singleton ----");
 
         float[] listFrequences = ConfigManager.getListFrequences();
         int countMisure = ConfigManager.getInstance().getConfigCountMisureButtons();
@@ -80,6 +102,12 @@ public class ScoreSingleton implements JMC {
         initSynth();
     }
 
+    public void setTimeLabel(JLabel jLabel){
+        timeLabel = jLabel;
+    }
+    public JLabel getTimeLabel(){
+        return timeLabel;
+    }
     public void setNoteInPartAndPhraseAthIndex(NoteBlock noteBlock, boolean set) {
         Part oldPart = score.getPart(noteBlock.getPart());
         Phrase oldPhrase = oldPart.getPhrase(noteBlock.getPhrase());
@@ -88,12 +116,34 @@ public class ScoreSingleton implements JMC {
         Note n = set ? new Note(Note.freqToMidiPitch(frequence), ConfigManager.DEFAULT_CONFIG_RYTHM_MIN_DURATE) : new Note(REST, ConfigManager.DEFAULT_CONFIG_RYTHM_MIN_DURATE);
         n.setDuration(n.getRhythmValue());
         oldPhrase.setNote(n, noteBlock.getIndex());
-
-        //System.out.println("Part: " + oldPart.getTitle() + "\n" + "Phrase: " + oldPhrase.getTitle());
-        //System.out.println(score.toString());
+    }
+    
+   
+    private UnitOscillator getOscillator(){
+        switch(ConfigManager.getInstance().getConfigTypeOScillator()){
+            case SINE:{
+                return new SineOscillator();
+            }
+            case WAVE:{
+                return new GoogleWaveOscillator();
+            }
+            case SAW:{
+                return new SawtoothOscillator();
+            }
+            case TRIANGLE:{
+                return new TriangleOscillator();
+            }
+            case SQUARE:{
+                return new SquareOscillator();
+            }
+            default:{
+                return new SineOscillator();
+            }
+            
+            
+        }
     }
 
-    //TODO: Manage play chord
     private void initSynth() {
         System.out.println("Init Synth");
         // Create a context for the synthesizer.
@@ -105,11 +155,9 @@ public class ScoreSingleton implements JMC {
         // Add a tone generator.
         // Connect the oscillator to the left and right audio output.
         listOscillators = new ArrayList<>();
-        for (int i = 0; i < score.getPartArray().length; i++) {
-            UnitOscillator osc;
-            
+        for (int i = 0; i < score.getPartArray().length; i++) {            
             //TODO: Swith and create class osc type
-            GoogleWaveOscillator osc = new GoogleWaveOscillator();
+            UnitOscillator osc = getOscillator();
             //L'ampiezza è suddivisa tra i canali (??)
             double countOscillators = 100 / ConfigManager.getListFrequences().length;
             osc.amplitude.set(countOscillators);
@@ -150,7 +198,7 @@ public class ScoreSingleton implements JMC {
 
                         double freq = currNote.getFrequency();
                         double duration = currNote.getDuration();
-                        GoogleWaveOscillator currOscillator = (GoogleWaveOscillator) listOscillators.get(indp);
+                        UnitOscillator currOscillator = (UnitOscillator) listOscillators.get(indp);
                         //TODO: Revisone Ampiezza, se le note sono allo steso istante, diminuire amp.
                         currOscillator.noteOn(freq, 1.0 / ConfigManager.getListFrequences().length, timeStamp);
                         currOscillator.noteOff(timeStamp.makeRelative(duration));
@@ -166,31 +214,40 @@ public class ScoreSingleton implements JMC {
         } catch (Exception e) {
             System.out.println(e.toString());
         } 
-        
-        int endTransactionTime = 500; //ms
-        long duratePulsation = (long) (60.0/score.getTempo() * 1000);
+        int endTransactionTime = 0; //or 500 ms
+        long duratePulsation = (long) (60.0/score.getTempo() * 1000); //ms
         long endTime = (long) (score.getEndTime() * 1000) + endTransactionTime;
         System.out.println("BPM : " + score.getTempo() + ""
-                + "\nDurata pulsazione (ms) : " + (duratePulsation)
-                + "\nDurata brano (ms) : " + (endTime));
-        Timer timer = new Timer(duratePulsation, endTime) {
+                + "\nDurata pulsazione (s) : " + (duratePulsation/1000)
+                + "\nDurata brano (s) : " + (endTime/1000));
+
+        
+        Timer timer = new Timer(duratePulsation, endTime) {            
             @Override
             public void start() {
+                System.out.println("start");
+                manageClock(getElapsedTimeTicking());
                 super.start(); //To change body of generated methods, choose Tools | Templates.
-                System.out.println("start" );
-            }
-            
-            @Override
-            protected void onTick() {
-                //System.out.println("onTick");
             }
             
             @Override
             protected void onFinish() {
                 System.out.println("onFinish ");
-                stop();
+                manageClock(getElapsedTimeTicking());
+                stop(); 
+            }
+
+            @Override
+            protected void onTick() {
+                
+            }
+
+            @Override
+            protected void onTicking() {
+                manageClock(getElapsedTimeTicking());
             }
         };
+        
         try {
             timer.start();
         } catch (Exception e) {
@@ -199,10 +256,12 @@ public class ScoreSingleton implements JMC {
         
     }
 
+
     public void stop() {
         // Stop everything.
         System.out.println("---------------- STOP ----------------");
-        lineOut.stop();
+        double fadeOut = 500;
+        lineOut.stop(new TimeStamp(fadeOut));
     }
 
     public void pause() {
@@ -212,5 +271,12 @@ public class ScoreSingleton implements JMC {
     public void readScore() {
         System.out.println(score.toString());
     }
+    
+    private void manageClock(double seconds){     
+       getTimeLabel().setBackground(Color.red);
+       getTimeLabel().setText(Double.toString(seconds));
+    }
+
+    
 
 }

@@ -23,11 +23,16 @@ public abstract class Timer {
 	public static final int DURATION_INFINITY = -1;
 	private volatile boolean isRunning = false;
 	private long interval;
+        private long clockInterval = 100;
 	private long elapsedTime;
+        private long elapsedTimeTicking;
 	private long duration;
 	private ScheduledExecutorService execService = Executors
 			.newSingleThreadScheduledExecutor();
+        private ScheduledExecutorService execServiceGoingFuture = Executors
+			.newSingleThreadScheduledExecutor();
 	private Future<?> future = null;
+        private Future<?> goingFuture = null;
 
 	/**
 	 * Default constructor which sets the interval to 1000 ms (1s) and the
@@ -70,6 +75,21 @@ public abstract class Timer {
 				}
 			}
 		}, 0, this.interval, TimeUnit.MILLISECONDS);
+                
+                                
+                goingFuture = execServiceGoingFuture.scheduleWithFixedDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        onTicking();
+                        elapsedTimeTicking += Timer.this.clockInterval;
+                        if (duration > 0) {
+					if(elapsedTimeTicking >=duration){
+						onFinish();
+                                                goingFuture.cancel(false);
+					}
+				}
+                    }
+                }, 0, Timer.this.clockInterval, TimeUnit.MILLISECONDS);
 	}
 
 	/**
@@ -78,6 +98,7 @@ public abstract class Timer {
 	public void pause() {
 		if(!isRunning) return;
 		future.cancel(false);
+                goingFuture.cancel(false);
 		isRunning = false;
 	}
 
@@ -94,6 +115,12 @@ public abstract class Timer {
 	 *	This method is called periodically with the interval set as the delay between subsequent calls. 
 	 */
 	protected abstract void onTick();
+        
+        
+        /**
+	 *	This method is called each 100 ms
+	 */
+	protected abstract void onTicking();
 	
 	
 	/**
@@ -107,6 +134,7 @@ public abstract class Timer {
 	public void cancel() {
 		pause();
 		this.elapsedTime = 0;
+                this.elapsedTimeTicking = 0;
 	}
 
 	
@@ -115,6 +143,9 @@ public abstract class Timer {
 	 */
 	public long getElapsedTime() {
 		return this.elapsedTime;
+	}
+        public long getElapsedTimeTicking() {
+		return this.elapsedTimeTicking;
 	}
 	
 	/**
@@ -128,6 +159,14 @@ public abstract class Timer {
 			return duration-elapsedTime;
 		}
 	}
+        public long getRemainingTimeTicking(){
+		if(this.duration <0){
+			return Timer.DURATION_INFINITY;
+		}
+		else{
+			return duration-elapsedTimeTicking;
+		}
+	}
 	
 	/**
 	 * @return true if the timer is currently running, and false otherwise.
@@ -135,4 +174,5 @@ public abstract class Timer {
 	public boolean isRunning() {
 		return isRunning;
 	}
+       
 }

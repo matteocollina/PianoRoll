@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package pianoroll;
+import model.singleton.ScoreSingleton;
 import pianoroll.controller.PianoRollContent;
 
 /**

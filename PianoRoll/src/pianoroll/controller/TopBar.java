@@ -5,20 +5,14 @@
  */
 package pianoroll.controller;
 
-import com.jsyn.unitgen.SineOscillator;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.FlowLayout;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -27,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import model.IntTextField;
+import model.Oscillator;
 import model.SettingButton;
 import model.SettingGroupPanel;
 import model.singleton.ScoreSingleton;
@@ -45,7 +40,7 @@ public class TopBar extends JPanel{
     private final SettingButton btnPause = new SettingButton(Utils.getPauseIcon(HEIGHT,HEIGHT, (float) 0.5));
     private final SettingButton btnPlay = new SettingButton(Utils.getPlayIcon(HEIGHT,HEIGHT, (float) 0.5));
     private SettingButton[] listButtons = {btnStop,btnPause,btnPlay};
-    private final String[] listTimbri = {Utils.getAppString(KeyLocate.SINE),Utils.getAppString(KeyLocate.WAVE)};
+    private final Oscillator.OTYPE[] listTimbri = {Oscillator.OTYPE.SINE,Oscillator.OTYPE.WAVE,Oscillator.OTYPE.SAW,Oscillator.OTYPE.SQUARE,Oscillator.OTYPE.TRIANGLE};
     private JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
     private int MAX_CHAR = 4;
     private int MAX_CHAR_BTN_NOTES = 2;
@@ -62,6 +57,7 @@ public class TopBar extends JPanel{
     PianoRollContent pianoRollContent;
     Timer timer = new Timer();
     JComboBox comboListOScillator;
+    JLabel timeLabel = new JLabel("");
     
     public TopBar() {
         super();
@@ -78,8 +74,7 @@ public class TopBar extends JPanel{
         this.add(maxFreqGroupPanel);
         
         
-        
-        JLabel timeLabel = new JLabel("0s");
+        ScoreSingleton.getInstance().setTimeLabel(timeLabel);
         this.add(timeLabel);
         
         for (int i = 0; i < listButtons.length; i++) {
@@ -144,7 +139,7 @@ public class TopBar extends JPanel{
         ConfigManager.getInstance().setConfigBPM(bpmTextField.getText());
         ConfigManager.getInstance().setConfigCountNoteButtons(countNoteButtonsTextField.getText());
         ConfigManager.getInstance().setConfigCountMisure(countMisuresTextField.getText());
-        ConfigManager.getInstance().setConfigTypeOscillatore(comboListOScillator.getSelectedItem().toString());
+        ConfigManager.getInstance().setConfigTypeOscillatore((Oscillator.OTYPE) comboListOScillator.getSelectedItem());
         JOptionPane.showMessageDialog(topFrame, Utils.getAppString(KeyLocate.CONFIGURAZIONE_SALVATA));
         getPianoRollContent().reloadGraphic();
     }
