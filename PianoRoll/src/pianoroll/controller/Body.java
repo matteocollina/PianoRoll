@@ -46,7 +46,7 @@ public class Body extends JPanel {
         content.setBackground(Color.BLACK);
         
         JScrollPane scroll = new JScrollPane(content,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         content.setAutoscrolls(true);
         scroll.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));

@@ -18,7 +18,7 @@ import jm.JMC;
 import model.Oscillator;
 
 
-public class ConfigManager {
+public class ConfigManager implements JMC{    
     private static ConfigManager singleton = new ConfigManager( );
 
     private Properties _properties;
@@ -26,21 +26,28 @@ public class ConfigManager {
     
     private int DEFAULT_BEAT = 4; //  4/4
     
-    private int DEFAULT_CONFIG_MIN_DURATE = 4; //   1/4
+    /*
+        1 => JMC.SEMIBREVE
+        2 => JMC.MINIM
+        4 => JMC.CROTCHET
+        8 => JMC.QUAVER
+        16 => JMC.SEMI_QUAVER
+    */
+    private int DEFAULT_CONFIG_MIN_DURATE = 16; 
     public static final double DEFAULT_CONFIG_RYTHM_MIN_DURATE = JMC.SEMI_QUAVER;
     
     private String KEY_CONFIG_COUNT_NOTE_BTNS = "key_count_note_btns";
     private String KEY_CONFIG_COUNT_MISURE_BTNS = "key_count_misure_btns";
-    private int DEFAULT_CONFIG_COUNT_NOTE_BTNS = 10;
+    private int DEFAULT_CONFIG_COUNT_NOTE_BTNS = 15;
     private int DEFAULT_CONFIG_COUNT_MISURE_BTNS = 2;
     private String KEY_CONFIG_MIN_FREQ = "key_min_freq";
-    private String DEFAULT_CONFIG_MIN_FREQ = "27.5";
+    private String DEFAULT_CONFIG_MIN_FREQ = "30"; 
     private String KEY_CONFIG_MAX_FREQ = "key_max_freq";
-    private String DEFAULT_CONFIG_MAX_FREQ = "4186.01";
+    private String DEFAULT_CONFIG_MAX_FREQ = "1000 ";
     private String KEY_CONFIG_BPM = "key_bpm";
     private String DEFAULT_CONFIG_BPM = "100";
     private String KEY_CONFIG_OSCILLATOR = "key_oscillator";
-    private Oscillator.OTYPE DEFAULT_CONFIG_OSCILLATOR = Oscillator.OTYPE.SINE;
+    private Oscillator.OTYPE DEFAULT_CONFIG_OSCILLATOR = Oscillator.OTYPE.WAVE;
  
     public ConfigManager(){
         this._properties = new Properties();

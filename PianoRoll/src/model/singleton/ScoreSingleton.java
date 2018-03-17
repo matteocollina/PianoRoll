@@ -53,6 +53,7 @@ public class ScoreSingleton implements JMC {
     private static ScoreSingleton instance;
     private Score score;
     private TimerAudio timerSong;
+    private boolean enableRepeat = false;
 
     private ScoreSingleton() {
 
@@ -71,6 +72,11 @@ public class ScoreSingleton implements JMC {
         return instance;
     }
 
+    
+    private void resetScore(){
+        score = new Score("Exam");
+        score.clean();
+    }
     public void reset() {
         System.out.println("---- Reset singleton ----");
 
@@ -78,8 +84,7 @@ public class ScoreSingleton implements JMC {
         int countMisure = ConfigManager.getInstance().getConfigCountMisureButtons();
         int minMisure = ConfigManager.getInstance().getConfigMinDurate();
 
-        score = new Score("Exam");
-        score.clean();
+        resetScore();
         score.setTempo(Double.valueOf(ConfigManager.getInstance().getConfigBPM()));
         for (int i = 0; i < listFrequences.length; i++) {
             Part part = new Part(Integer.toString(i));
@@ -167,6 +172,18 @@ public class ScoreSingleton implements JMC {
         }
     }
 
+    
+    public void randomize() {
+       float[] listFrequences = ConfigManager.getListFrequences();
+       int countMisure = ConfigManager.getInstance().getConfigCountMisureButtons();
+       int minMisure = ConfigManager.getInstance().getConfigMinDurate();
+       resetScore();
+       
+       
+       
+       reset();
+    }
+    
     public void play() {
         //Block permission to play while playing.
         if (canPlaying()) {
@@ -221,7 +238,7 @@ public class ScoreSingleton implements JMC {
                                 }});
                                 
                                 if (currNote.getPitch() != REST) {
-                                    System.out.println("duration : " + duration);
+                                    //System.out.println("duration : " + duration);
                                     //System.out.println("\tNote " + i + " from : " + timeStamp.getTime() + " to: " + timeStamp.makeRelative(duration).getTime());
                                 }
                                 timeStamp = timeStamp.makeRelative(duration);
@@ -235,19 +252,19 @@ public class ScoreSingleton implements JMC {
                 }
                 
 
-                int endTransactionTime = 500; //or 500 ms
+                int endTransactionTime = 200; //or 500 ms
                 long duratePulsation = (long) (getDurationNote() * 1000); //ms
                 
                 
                 long endTime = (long)(((getDurationNote()) 
-                                            * ConfigManager.getInstance().getConfigCountMisureButtons()) * 1000) 
-                                            + endTransactionTime;
+                                            * ConfigManager.getInstance().getConfigCountMisureButtons()) * 1000);
+                long endTimeTransaction = endTime + endTransactionTime;
 
                 System.out.println("BPM : " + score.getTempo() + ""
                         + "\nDurata pulsazione (ms) : " + (duratePulsation )
                         + "\nDurata brano (ms) : " + (endTime ));
 
-                timerSong = new TimerAudio(duratePulsation, endTime) {
+                timerSong = new TimerAudio(duratePulsation, endTimeTransaction) {
                     @Override
                     public void start() {
                         System.out.println("start");
@@ -258,8 +275,11 @@ public class ScoreSingleton implements JMC {
                     @Override
                     protected void onFinish() {
                         System.out.println("onFinish ");
-                        manageClock(getElapsedTimeTicking());
+                        manageClock(endTime);
                         stop(false);
+                        if (isEnableRepeat()) {
+                            ScoreSingleton.getInstance().play();
+                        }
                     }
 
                     @Override
@@ -306,6 +326,16 @@ public class ScoreSingleton implements JMC {
         } catch (Exception e) {
             System.out.println(">> ERROR while press pause : " + e.toString());
         }
+    }
+    
+    public boolean isEnableRepeat() {
+        return this.enableRepeat;
+    }
+    public void enableRepeat() {
+        this.enableRepeat = true;
+    }
+    public void disableRepeat() {
+        this.enableRepeat = false;
     }
 
     public void readScore() {

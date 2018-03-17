@@ -57,5 +57,16 @@ public class IntTextField extends JTextField implements KeyListener{
         if (this.getText().length()==0) {
             this.setText(Integer.toString(this.defvalue));
         }
+        else{
+            try {
+                int val = Integer.parseInt(this.getText());
+                if(val == 0){ //< this.defvalue
+                    this.setText(Integer.toString(this.defvalue));
+                }
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
+        }
+        
     }
 }

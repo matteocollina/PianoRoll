@@ -39,7 +39,9 @@ public class TopBar extends JPanel{
     private final SettingButton btnStop = new SettingButton(Utils.getStopIcon(HEIGHT,HEIGHT, (float) 0.5));
     private final SettingButton btnPause = new SettingButton(Utils.getPauseIcon(HEIGHT,HEIGHT, (float) 0.5));
     private final SettingButton btnPlay = new SettingButton(Utils.getPlayIcon(HEIGHT,HEIGHT, (float) 0.5));
+    private final SettingButton btnRandom = new SettingButton(Utils.getRandomIcon(HEIGHT,HEIGHT, (float) 0.5));
     private SettingButton[] listButtons = {btnStop,btnPlay};
+    private SettingButton[] listOtherButtons = {};
     private final Oscillator.OTYPE[] listTimbri = {Oscillator.OTYPE.SINE,Oscillator.OTYPE.WAVE,Oscillator.OTYPE.SAW,Oscillator.OTYPE.SQUARE,Oscillator.OTYPE.TRIANGLE};
     private JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
     private int MAX_CHAR = 4;
@@ -113,6 +115,27 @@ public class TopBar extends JPanel{
         comboListOScillator = new JComboBox(listTimbri);
         comboListOScillator.setSelectedItem(ConfigManager.getInstance().getConfigTypeOScillator());
         this.add(comboListOScillator);
+        
+        
+        
+        for (int i = 0; i < listOtherButtons.length; i++) {
+            this.add(listOtherButtons[i]);
+        }
+        btnRandom.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (btnRandom.isSelected()) {
+                    ScoreSingleton.getInstance().disableRepeat();
+                    btnRandom.setSelected(false);
+                }else{
+                    ScoreSingleton.getInstance().enableRepeat();
+                    btnRandom.setSelected(true);
+                }
+            }
+        });
+
+        
+        
         
         countNoteButtonsTextField = new IntTextField(Integer.toString(ConfigManager.getInstance().getConfigCountNoteButtons()),Utils.FIELDS.LIMIT_CHAR.NOTE,Utils.FIELDS.DEFAULT_VALUE.NOTE);                
         SettingGroupPanel settingGroupPanel = new SettingGroupPanel(WIDTH_GROUP, HEIGHT_GROUP, countNoteButtonsTextField, Utils.getAppString(KeyLocate.TASTI));
