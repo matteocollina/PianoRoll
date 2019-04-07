@@ -2,20 +2,19 @@
 
 ![PianoRoll Microtonale](https://raw.githubusercontent.com/matteocollina/PianoRoll/master/ScreenProjects/Schermata%202018-02-19%20alle%2016.42.05.png)
 
-Applicazione Swing che visualizza un’interfaccia in stile piano roll in
-cui però le note non corrispondono alla scala cromatica del sistema temperato equabile, ma possa essere scelta frequenza iniziale, frequenza finale e numero di suddivisioni dell’asse verticale.
+Swing application that displays a flat roll style interface in which, however, the notes do not correspond to the chromatic scale of the equal tempered system, but can be chosen starting frequency, final frequency and number of subdivisions of the vertical axis.
 
-A sinistra nella schermata principale una pseudo-tastiera (dove non ci sono i tasti bianchi e neri ma solo una sequenza di tasti uguali) ed a destra di essa una griglia di posizioni corrispondenti al tempo (in orizzontale) e alla nota (in verticale). 
+On the left of the main screen a pseudo-keyboard (where there are no white and black keys but only a sequence of identical keys) and to the right of it a grid of positions corresponding to time (horizontally) and note (vertically) .
 
-L’utente può disegnare le note da suonare e riprodurle. 
+The user can draw the notes to play and play them.
 
-Le impostazioni riguardano il timbro da utilizzare, la frequenza minima e massima, il numero di suddivisioni della tastiera e i BPM per l’esecuzione ed il numero di misure.
+The settings concern the stamp to be used, the minimum and maximum frequency, the number of subdivisions of the keyboard and the BPM for the execution and the number of measurements.
 
-La durata minima delle note è 1/16 ma è possibile cambiarlo nel ConfigManager con effettiva rimodellazione del PianoRoll.
+The minimum duration of the notes is 1/16 but it is possible to change it in the ConfigManager with effective remodeling of the PianoRoll.
 
 
-## Implementazioni future ##  
-- Possibilità di inserire note di durata diversa  
-- Effetto grafico al play di una nota  
-- Inserimento bottone "loop" che cicla la sequenza  
-- Ottimizzazione salvataggio settings con mantenimento dello score  
+## Next? ##  
+- Possibility to insert notes of different duration
+- Graphic effect to the play of a note
+- Insertion of the "loop" button which cycles the sequence
+- Optimization of settings saving with score maintenance
