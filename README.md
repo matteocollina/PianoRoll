@@ -1,5 +1,7 @@
 # PianoRoll Microtonale
 
+![alt text](https://www.pinterest.com/pin/299982025177563650/)
+
 Applicazione Swing che visualizza un’interfaccia in stile piano roll in
 cui però le note non corrispondono alla scala cromatica del sistema temperato equabile, ma possa essere scelta frequenza iniziale, frequenza finale e numero di suddivisioni dell’asse verticale.
 
