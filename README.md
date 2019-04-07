@@ -1,6 +1,6 @@
-# PianoRoll Microtonale
+# Microtonal PianoRoll
 
-![PianoRoll Microtonale](https://raw.githubusercontent.com/matteocollina/PianoRoll/master/ScreenProjects/Schermata%202018-02-19%20alle%2016.42.05.png)
+![PianoRoll Microtonal](https://raw.githubusercontent.com/matteocollina/PianoRoll/master/ScreenProjects/Schermata%202018-02-19%20alle%2016.42.05.png)
 
 Swing application that displays a flat roll style interface in which, however, the notes do not correspond to the chromatic scale of the equal tempered system, but can be chosen starting frequency, final frequency and number of subdivisions of the vertical axis.
 
