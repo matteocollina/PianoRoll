@@ -217,14 +217,14 @@ public class ScoreSingleton implements JMC {
                             for (int i = 0; i < currPhrase.getNoteArray().length; i++) {
                                 Note currNote = currPhrase.getNoteArray()[i];
 
-                                double freq = currNote.getFrequency();
+                                final double freq = currNote.getFrequency();
                                 
                                 /*
                                 - es. 120BPM => Pulsazione dura 60/120=0.5s
                                 - 0.5s / 4 = 0.125s     //note da 1/4
                                 (oppure 0.5s / 8 = 0.0625s     //note da 1/8
                                 */
-                                double duration = getDurationNote() / ConfigManager.getInstance().getConfigMinDurate();                                 
+                                final double duration = getDurationNote() / ConfigManager.getInstance().getConfigMinDurate();                                 
                                 
                                 UnitOscillator currOscillator = (UnitOscillator) listOscillators.get(indp);
                                 
@@ -256,7 +256,7 @@ public class ScoreSingleton implements JMC {
                 long duratePulsation = (long) (getDurationNote() * 1000); //ms
                 
                 
-                long endTime = (long)(((getDurationNote()) 
+                final long endTime = (long)(((getDurationNote()) 
                                             * ConfigManager.getInstance().getConfigCountMisureButtons()) * 1000);
                 long endTimeTransaction = endTime + endTransactionTime;
 
